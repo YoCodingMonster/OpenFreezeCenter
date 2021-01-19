@@ -40,3 +40,5 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Graph to monitor Temps and speeds              In alpha testing
   - integrating it in a wedget in power menu       still planning
 ```
+GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
