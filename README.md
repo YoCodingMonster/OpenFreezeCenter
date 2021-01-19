@@ -19,7 +19,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - ```python3```
 
 # How To Install GUI app?
-- After making the above requirements available manually (Will be automated in future releases). run these command in terminal.
+- After making the above requirements available manually (Will be automated in future releases). open terminal in same directory and run.
 - ```python3 GUI-MSI-DC-L.py```
 - This will open the GUI app.
 
