@@ -20,8 +20,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 # How To Install GUI app?
 - After making the above requirements available manually (Will be automated in future releases). run these command in terminal.
-- ```sudo chmod +x isw_install.py```
-- ```./isw_install.py``` 
+- ```python3 GUI-MSI-DC-L.py```
 - This will open the GUI app.
 
 # How to install ISW service?
