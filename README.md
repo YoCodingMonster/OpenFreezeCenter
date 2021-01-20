@@ -40,5 +40,11 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Graph to monitor Temps and speeds              In alpha testing
   - integrating it in a wedget in power menu       still planning
 ```
+
+# Known Bugs in V1.0 :- 1
+## Unfixed :- 1
+- (OPEN) Battery indicator shown 0 When applying fan modes
+## Fixed :- 0
+
 GNU AFFERO GENERAL PUBLIC LICENSE
 Version 3, 19 November 2007
