@@ -18,12 +18,10 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - get it by :-> ```sudo apt install nautilus-admin```
 ### python3 
 - get it by :-> ```sudo apt-get install python3.8```
-### pip3 library
-- get it by :-> ```sudo apt install python3-pip```
 ### tkinter python3 library
 - get it by :-> ```sudo apt-get install python3-tk```
 ### crontab python3 library
-- get it by :-> ```pip3 install python-crontab```
+- get it by :-> ```sudo apt-get install python3-crontab```
 
 # BEOFRE UPDATING PLEASE UNINSTALL THE PREVIOUS VERSION BY USING THE PROVIDED UNINSTALL OPTION IN THIS SOFTWARE
 
