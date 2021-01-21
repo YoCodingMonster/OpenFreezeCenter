@@ -171,7 +171,7 @@ lable2 = Label(window, text = "Version 1.0.0", fg = 'black', font=("Helvetica", 
 lable2.place(x = 122, y = 50)
 
 def install():
-    os.system("gnome-terminal -e 'bash -c \"sudo install -Dm 644 etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf \"${pkgdir}/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf\" && sudo install -Dm 644 etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf \"${pkgdir}/etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf\" && reboot; exec bash\"'")
+    os.system("gnome-terminal -e 'bash -c \"sudo install -Dm 644 etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf \"${pkgdir}/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf\" && sudo install -Dm 644 etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf \"${pkgdir}/etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf\"; exec bash\"'")
     button5.config(fg = 'black', command = uninstall)
     button2.config(fg = 'grey', command = null)
     messagebox.showinfo("Installation Complete!", "Please Reboot your system to enable EC module write capablities of script") 
