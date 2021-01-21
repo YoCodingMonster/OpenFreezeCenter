@@ -22,6 +22,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - get it by :-> ```sudo apt install python3-pip```
 ### tkinter python3 library
 - get it by :-> ```sudo apt-get install python3-tk```
+### crontab python3 library
+- get it by :-> ```pip3 install python-crontab```
 
 # BEOFRE UPDATING PLEASE UNINSTALL THE PREVIOUS VERSION BY USING THE PROVIDED UNINSTALL OPTION IN THIS SOFTWARE
 
@@ -29,20 +31,18 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Download the .zip from the github and extract it whereever you want
 - After making the above requirements available manually. open terminal inside the extracted folder ```MSI-Deagon-Center-for-Linux``` directory and run.
 - ```sudo python3 GUI-MSI-DC-L.py```
-- This will open the GUI app.
-
-# How to install ISW service?
-- Just click buttons in a sequence on this app to get things installed properly!!
-- This App will create 2 additional files. They store your fan curve configuration. Do not delete the, or you r fan curve will be reset.
+- This will open the GUI app for the first time.
+- enable ```Run at startup``` option to automatically open software at linux bootup!! otherwise you can always use the above command to launch the software whenever needed!!
 
 # For any issue and query comment!
 
 # Goals
 ```
   - Basic GUI                                          Done
-  - Impleminting one click install                     In Progress
   - Fan Control with GUI                               Done
   - Auto, Basic, Advanced, Cooler Booster              Done
+  - One click install                                  In Progress
+  - Enable at startup                                  In Progress
   - Making Pre-required installs automatic             In Beta Testing
   - Graph to monitor Temps and speeds                  In alpha testing
   - integrating it in a wedget in power menu           still planning
