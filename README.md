@@ -22,11 +22,10 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - get it by :-> ```sudo apt install python3-pip```
 ### tkinter python module
 - get it by :-> ```sudo apt-get install python-tk```
-### git python module
-- get it by :-> ```pip3 install python-git```
 
 # How To Install GUI app?
-- After making the above requirements available manually. open terminal in same directory and run.
+- Download the .zip from the github and extract it whereever you want
+- After making the above requirements available manually. open terminal inside the extracted folder ```MSI-Deagon-Center-for-Linux``` directory and run.
 - ```chmod +x GUI-MSI-DC-L.py```
 - ```sudo ./GUI-MSI-DC-L.py```
 - This will open the GUI app.
