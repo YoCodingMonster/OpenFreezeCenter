@@ -594,20 +594,22 @@ if check2 == True:
     cb_on = Button(window, text = "Cooler Booster", width = 10, fg = 'black', command = cooler_booster_on)
     cb_on.place(x = 250, y = 235)
 
-with open(EC_IO_FILE,'r+b') as file:
-    file.seek(0xf4)
-    fm = int(file.read(1).hex(),16)
-    file.seek(0x98)
-    cb = int(file.read(1).hex(),16)
-
-if cb == 128:
-    cb_on.config(fg = 'red')
-if fm == 12:
-    a_on.config(fg = 'red')
-if fm == 76:
-    b_on.config(fg = 'red')
-if fm == 140:
-    ad_on.config(fg = 'red')
+if check2 == True:
+	with open(EC_IO_FILE,'r+b') as file:
+		file.seek(0xf4)
+		fm = int(file.read(1).hex(),16)
+		file.seek(0x98)
+		cb = int(file.read(1).hex(),16)
+		
+if check2 == True:
+	if cb == 128:
+		cb_on.config(fg = 'red')
+	if fm == 12:
+		a_on.config(fg = 'red')
+	if fm == 76:
+		b_on.config(fg = 'red')
+	if fm == 140:
+		ad_on.config(fg = 'red')
 
 canvas.create_line(0, y + 230, 370, y + 230, dash=(10, 4), fill = "grey")
 
