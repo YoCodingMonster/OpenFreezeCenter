@@ -26,8 +26,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # How To Install GUI app?
 - Download the .zip from the github and extract it whereever you want
 - After making the above requirements available manually. open terminal inside the extracted folder ```MSI-Deagon-Center-for-Linux``` directory and run.
-- ```chmod +x GUI-MSI-DC-L.py```
-- ```sudo ./GUI-MSI-DC-L.py```
+- ```python3 GUI-MSI-DC-L.py```
 - This will open the GUI app.
 
 # How to install ISW service?
