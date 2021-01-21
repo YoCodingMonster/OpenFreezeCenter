@@ -13,13 +13,20 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Installation is very easy with almost one click solution!!
 
 # What is Pre-Required For this to install properly?
-- ```Nautilus-admin```
-- ```tkinter python module```
-- ```git python module```
-- ```python3```
+- run this command before getting any module installed ```sudo apt update```
+### Nautilus-admin
+- get it by :-> ```sudo apt install nautilus-admin```
+### python3 
+- get it by :-> ```sudo apt-get install python3.8```
+### pip3 library
+- get it by :-> ```sudo apt install python3-pip```
+### tkinter python module
+- get it by :-> ```sudo apt-get install python-tk```
+### git python module
+- get it by :-> ```pip3 install python-git```
 
 # How To Install GUI app?
-- After making the above requirements available manually (Will be automated in future releases). open terminal in same directory and run.
+- After making the above requirements available manually. open terminal in same directory and run.
 - ```chmod +x GUI-MSI-DC-L.py```
 - ```sudo ./GUI-MSI-DC-L.py```
 - This will open the GUI app.
@@ -32,13 +39,13 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 # Goals
 ```
-  - Basic GUI                                      Done
-  - Impleminting one click install                 Done
-  - Fan Control with GUI                           Done
-  - Cooler Booster                                 Done
-  - Making Pre-required installs hidden and easy   In Beta Testing
-  - Graph to monitor Temps and speeds              In alpha testing
-  - integrating it in a wedget in power menu       still planning
+  - Basic GUI                                          Done
+  - Impleminting one click install                     In Progress
+  - Fan Control with GUI                               Done
+  - Auto, Basic, Advanced, Cooler Booster              Done
+  - Making Pre-required installs automatic             In Beta Testing
+  - Graph to monitor Temps and speeds                  In alpha testing
+  - integrating it in a wedget in power menu           still planning
 ```
 
 # Known Bugs in V1.0 :- 1
