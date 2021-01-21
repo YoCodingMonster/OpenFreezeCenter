@@ -22,8 +22,6 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - get it by :-> ```sudo apt install python3-pip```
 ### tkinter python3 library
 - get it by :-> ```sudo apt-get install python3-tk```
-### git python3 library
-- get it by :-> ```sudo apt-get install python3-git```
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it whereever you want
