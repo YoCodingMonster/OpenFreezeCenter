@@ -52,6 +52,3 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 ## Unfixed :- 1
 - (OPEN) Battery indicator shown 0 When applying fan modes
 ## Fixed :- 0
-
-GNU AFFERO GENERAL PUBLIC LICENSE
-Version 3, 19 November 2007
