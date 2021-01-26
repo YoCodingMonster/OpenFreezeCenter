@@ -47,6 +47,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 ```
 
 # Known Bugs in V1.0 :- 1
-## Unfixed :- 1
+## Unfixed :- 0
+-
+## Fixed :- 1
 - (OPEN) Battery indicator shown 0 When applying fan modes
-## Fixed :- 0
