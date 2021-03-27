@@ -136,10 +136,9 @@ def uninstall():
 	
 if check == True:
 	button1 = Button(window, text = "Uninstall", width = 20, fg = 'grey', command = uninstall)
-	button1.place(x = 90, y = 80)
 else:
 	button1 = Button(window, text = "Install", width = 20, fg = 'black', command = install)
-	button1.place(x = 90, y = 80)
+button1.place(x = 90, y = 80)
     
 """#################################################################################### Startup - Unstartup"""
     
@@ -167,7 +166,7 @@ for job in my_cron:
 		button2 = Button(window, text = "Dont run at Startup", width = 20, fg = 'grey', command = unstartup)
 	else:
 		button2 = Button(window, text = "Run at Startup", width = 20, fg = 'black', command = startup)
-button2.place(x = 90, y = 110)
+	button2.place(x = 90, y = 110)
 
 
 """#################################################################################### Monitor - Unmonitor"""
