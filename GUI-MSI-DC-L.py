@@ -136,9 +136,10 @@ def uninstall():
 	
 if check == True:
 	button1 = Button(window, text = "Uninstall", width = 20, fg = 'grey', command = uninstall)
+	button1.place(x = 90, y = 80)
 else:
 	button1 = Button(window, text = "Install", width = 20, fg = 'black', command = install)
-button1.place(x = 90, y = 80)
+	button1.place(x = 90, y = 80)
     
 """#################################################################################### Startup - Unstartup"""
     
