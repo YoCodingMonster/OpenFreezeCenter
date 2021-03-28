@@ -22,6 +22,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - get it by :-> ```sudo apt-get install python3-tk```
 ### crontab python3 library
 - get it by :-> ```sudo apt-get install python3-crontab```
+### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
 # BEOFRE UPDATING PLEASE UNINSTALL THE PREVIOUS VERSION BY USING THE PROVIDED UNINSTALL OPTION IN THIS SOFTWARE
 
@@ -46,8 +47,9 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - integrating it in a wedget in power menu           still planning
 ```
 
-# Known Bugs in V1.0 :- 1
+# Known Bugs in V1.0 :- 2
 ## Unfixed :- 0
 -
-## Fixed :- 1
-- (OPEN) Battery indicator shown 0 When applying fan modes
+## Fixed :- 2
+- (CLOSED) Battery indicator shown 0 When applying fan modes
+- (CLOSED) Button was not visible
