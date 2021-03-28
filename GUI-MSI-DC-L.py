@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/python3
 
 from tkinter import *
 from tkinter import messagebox
@@ -143,31 +143,32 @@ button1.place(x = 90, y = 80)
 """#################################################################################### Startup - Unstartup"""
     
 def startup():
+	button2.config(fg = 'grey', text = 'Dont run at Startup', command = unstartup)
 	os.system("gnome-terminal -e 'bash -c \"sudo install -Dm 644 GUI-MSI-DC-L.py \"${pkgdir}/usr/share/GUI-MSI-DC-L.py\"; exec bash\"'")
 	my_cron = CronTab(user = username)
 	job = my_cron.new(command = '@reboot python3 /usr/share/GUI-MSI-DC-L.py')
 	my_cron.write()
-	button2.config(fg = 'grey', text = 'Dont run at Startup', command = unstartup)
 	return
 	
 def unstartup():
+	button2.config(fg = 'black', text = 'Run at Startup', command = startup)
 	os.system("gnome-terminal -e 'bash -c \"sudo rm /usr/share/GUI-MSI-DC-L.py; exec bash\"'")
 	my_cron = CronTab(user = username)
 	for job in my_cron:
 		if job.comment == '@reboot python3 /usr/share/GUI-MSI-DC-L.py':
 			my_cron.remove(job)
 			my_cron.write()
-	button2.config(fg = 'black', text = 'Run at Startup', command = startup)
 	return
 	
+button2 = Button(window, text = "Run at Startup", width = 20, fg = 'black', command = startup)
+button2.place(x = 90, y = 110)
+
 my_cron = CronTab(user = username)
 for job in my_cron:
 	if job.comment == '@reboot python3 /usr/share/GUI-MSI-DC-L.py':
-		button2 = Button(window, text = "Dont run at Startup", width = 20, fg = 'grey', command = unstartup)
+		button2.config(fg = 'grey', text = 'Dont run at Startup', command = unstartup)
 	else:
-		button2 = Button(window, text = "Run at Startup", width = 20, fg = 'black', command = startup)
-	button2.place(x = 90, y = 110)
-
+		button2.config(fg = 'black', text = 'Run at Startup', command = startup)
 
 """#################################################################################### Monitor - Unmonitor"""
 	
@@ -377,7 +378,7 @@ def advanced_on():
 
 def cooler_booster_on():
 	window.geometry('370x270')
-	with open(EC_IO_FILE,'r+b') as file:
+	with open(EC_IO_FILE,'w+b') as file:
 	    file.seek(0x98)
 	    file.write(bytes((128,)))
 	a_on.config(fg = 'black', command = auto_on)
