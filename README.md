@@ -41,11 +41,11 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Fan Control with GUI                               Done
   - Auto, Basic, Advanced, Cooler Booster              Done
   - Basic temperature and RPM monitoring               Done
-  - One click install                                  In Progress
-  - Enable at startup                                  In Progress
+  - One click install                                  Done
+  - Enable at startup                                  Done
   - Making Pre-required installs automatic             In Beta Testing
   - Graph to monitor Temps and speeds                  In alpha testing
-  - integrating it in a wedget in power menu           still planning
+  - integrating it in a widget in power menu           still planning
 ```
 
 # Known Bugs in V1.0 :- 2
