@@ -7,12 +7,17 @@ import sys
 import subprocess
 from crontab import CronTab
 import getpass
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,  NavigationToolbar2Tk)
+import threading
+import time
 
 """############ Variables & Defaults"""
 
 username = getpass.getuser()
 EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
-fm, offset, y, monitoring = 12, 0, 100, 0
+fm, offset, y = 12, 0, 100
+monitoring = 0
 v = []
 check = os.path.exists("/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf")
 window = Tk()
@@ -111,7 +116,7 @@ window.geometry('370x210')
 lable1 = Label(window, text = "Creator :-> Aditya Kumar Bajpai", fg = 'red', font=("Helvetica", 16))
 lable1.place(x = 30, y = 10)
 
-lable2 = Label(window, text = "Version 1.0.0", fg = 'black', font=("Helvetica", 16))
+lable2 = Label(window, text = "Version 1.2", fg = 'black', font=("Helvetica", 16))
 lable2.place(x = 122, y = 50)
 
 """#################################################################################### Install - Uninstall"""
@@ -171,9 +176,104 @@ for job in my_cron:
 		button2.config(fg = 'black', text = 'Run at Startup', command = startup)
 
 """#################################################################################### Monitor - Unmonitor"""
-	
+def monitoring_int(lable_c11, lable_g11, lable_m44, lable_m55):
+	global monitoring
+	monitoring = 1
+	global timer
+	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_g11, lable_m44, lable_m55))
+	timer.start()
+	with open(EC_IO_FILE,'r+b') as file:
+		file.seek(0x68)
+		cpu_cur_temp = (int(file.read(1).hex(),16))
+		file.seek(0x80)
+		gpu_cur_temp = (int(file.read(1).hex(),16))
+		file.seek(0xcc)
+		cpu_fan = (int(file.read(2).hex(),16))
+		if cpu_fan != 0:
+			cpu_fan = 478000//cpu_fan
+		file.seek(0xca)
+		gpu_fan = (int(file.read(2).hex(),16))
+		if gpu_fan != 0:
+			gpu_fan = 478000//gpu_fan
+		"""if cpu_cur_temp > temp_c:
+			temp_c = cpu_cur_temp
+		if gpu_cur_temp > temp_g:
+			temp_g = gpu_cur_temp
+		if cpu_cur_temp < temp_c_m:
+			temp_c_m = cpu_cur_temp
+		if gpu_cur_temp < temp_g_m:
+			temp_g_m = gpu_cur_temp"""
+		lable_c11.config(text = cpu_cur_temp)
+		"""lable_c22.config(text = temp_c)
+		lable_c33.config(text = temp_c_m)"""
+		lable_g11.config(text = gpu_cur_temp)
+		"""lable_g22.config(text = temp_g)
+		lable_g33.config(text = temp_g_m)"""
+		lable_m44.config(text = cpu_fan)
+		lable_m55.config(text = gpu_fan)
+	return
+
 def monitor():
-    return
+	window.minsize(width = 700, height = 10)
+	button3.config(fg = 'grey', text = 'Hide Monitering', command = unmonitor)
+	monitering_break = 0
+	lable_m = Label(window, text = "Monitering", fg = 'Black', font=("Helvetica", 16))
+	lable_m.place(x = 470, y = 10)
+	canvas.create_line(370, 0, 370, 920, dash = (10, 4), fill = "grey")
+	canvas.create_line(370, 40, 700, 40, dash = (10, 4), fill = "grey")
+	lable_c1 = Label(window, text = "CPU Current Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_c1.place(x = 380, y = 50)
+	lable_c11 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_c11.place(x = 620, y = 50)
+	
+	"""lable_c2 = Label(window, text = "CPU Maximum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_c2.place(x = 380, y = 70)
+	lable_c22 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_c22.place(x = 620, y = 70)
+	
+	lable_c3 = Label(window, text = "CPU Minimum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_c3.place(x = 380, y = 90)
+	lable_c33 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_c33.place(x = 620, y = 90)"""
+	
+	lable_g1 = Label(window, text = "GPU Current Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_g1.place(x = 380, y = 110)
+	lable_g11 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_g11.place(x = 620, y = 110)
+	
+	"""lable_g2 = Label(window, text = "GPU Maximum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_g2.place(x = 380, y = 130)
+	lable_g22 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_g22.place(x = 620, y = 130)
+	
+	lable_g3 = Label(window, text = "GPU Minimum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_g3.place(x = 380, y = 150)
+	lable_g33 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_g33.place(x = 620, y = 150)"""
+	
+	lable_m4 = Label(window, text = "CPU fan RPM : ", fg = 'Black', font=("Helvetica", 10))
+	lable_m4.place(x = 380, y = 170)
+	lable_m44 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_m44.place(x = 620, y = 170)
+	
+	lable_m5 = Label(window, text = "GPU fan RPM : ", fg = 'Black', font=("Helvetica", 10))
+	lable_m5.place(x = 380, y = 190)
+	lable_m55 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
+	lable_m55.place(x = 620, y = 190)
+	
+	"""global temp_c
+	global temp_c_m
+	global temp_g
+	global temp_g_m"""
+	
+	monitoring_int(lable_c11, lable_g11, lable_m44, lable_m55)
+	return
+	
+def unmonitor():
+	window.minsize(width = 370, height = 10)
+	button3.config(fg = 'black', text = 'Monitor', command = monitor)
+	timer.cancel()
+	return
 
 button3 = Button(window, text = "Monitor", width = 20, fg = 'black', command = monitor)
 button3.place(x = 90, y = 140)
@@ -422,5 +522,12 @@ def fan_mode():
 button4 = Button(window, text = "Fan Modes", width = 20, fg = 'black', command = fan_mode)
 button4.place(x = 90, y = 170)
 
+def on_closing():
+	if monitoring == 1:
+		timer.cancel()
+	window.destroy()
+	return
+
 canvas.pack(fill = BOTH, expand = 1)
+window.protocol("WM_DELETE_WINDOW", on_closing)
 window.mainloop()
