@@ -40,6 +40,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Basic GUI                                          Done
   - Fan Control with GUI                               Done
   - Auto, Basic, Advanced, Cooler Booster              Done
+  - Basic temperature and RPM monitoring               Done
   - One click install                                  In Progress
   - Enable at startup                                  In Progress
   - Making Pre-required installs automatic             In Beta Testing
