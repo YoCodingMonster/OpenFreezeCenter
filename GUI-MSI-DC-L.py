@@ -16,6 +16,10 @@ username = getpass.getuser()
 EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
 fm, offset, y = 12, 0, 100
 monitoring = 0
+temp_c = 0
+temp_g = 0
+temp_c_m = 100
+temp_g_m = 100
 v = []
 check = os.path.exists("/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf")
 window = Tk()
@@ -174,12 +178,16 @@ for job in my_cron:
 		button2.config(fg = 'black', text = 'Run at Startup', command = startup)
 
 """#################################################################################### Monitor - Unmonitor"""
-def monitoring_int(lable_c11, lable_g11, lable_m44, lable_m55):
+def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55):
 	global monitoring
 	monitoring = 1
 	global timer
-	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_g11, lable_m44, lable_m55))
+	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55))
 	timer.start()
+	global temp_c
+	global temp_g
+	global temp_c_m
+	global temp_g_m
 	with open(EC_IO_FILE,'r+b') as file:
 		file.seek(0x68)
 		cpu_cur_temp = (int(file.read(1).hex(),16))
@@ -193,78 +201,80 @@ def monitoring_int(lable_c11, lable_g11, lable_m44, lable_m55):
 		gpu_fan = (int(file.read(2).hex(),16))
 		if gpu_fan != 0:
 			gpu_fan = 478000//gpu_fan
-		"""if cpu_cur_temp > temp_c:
+		if cpu_cur_temp > temp_c:
 			temp_c = cpu_cur_temp
+			color(temp_c, lable_c22)
 		if gpu_cur_temp > temp_g:
 			temp_g = gpu_cur_temp
+			color(temp_c, lable_g22)
 		if cpu_cur_temp < temp_c_m:
 			temp_c_m = cpu_cur_temp
+			color(temp_c_m, lable_c33)
 		if gpu_cur_temp < temp_g_m:
-			temp_g_m = gpu_cur_temp"""
-		lable_c11.config(text = cpu_cur_temp)
-		"""lable_c22.config(text = temp_c)
-		lable_c33.config(text = temp_c_m)"""
-		lable_g11.config(text = gpu_cur_temp)
-		"""lable_g22.config(text = temp_g)
-		lable_g33.config(text = temp_g_m)"""
+			temp_g_m = gpu_cur_temp
+			color(temp_g_m, lable_g33)
+		color(cpu_cur_temp, lable_c11)
+		color(gpu_cur_temp, lable_g11)
 		lable_m44.config(text = cpu_fan)
 		lable_m55.config(text = gpu_fan)
+	return
+	
+def color(temp, lable):
+	if temp <= 45:
+		lable.config(text = temp, fg = 'green')
+	elif (temp > 45) & (temp <= 60):
+		lable.config(text = temp, fg = 'yellow')
+	elif (temp > 60) & (temp <= 75):
+		lable.config(text = temp, fg = 'orange')
+	else:
+		lable.config(text = temp, fg = 'red')
 	return
 
 def monitor():
 	window.minsize(width = 700, height = 10)
 	button3.config(fg = 'grey', text = 'Hide Monitering', command = unmonitor)
-	monitering_break = 0
+	
 	lable_m = Label(window, text = "Monitering", fg = 'Black', font=("Helvetica", 16))
-	lable_m.place(x = 470, y = 10)
+	lable_m.place(x = 470, y = 5)
 	canvas.create_line(370, 0, 370, 920, dash = (10, 4), fill = "grey")
-	canvas.create_line(370, 40, 700, 40, dash = (10, 4), fill = "grey")
-	lable_c1 = Label(window, text = "CPU Current Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	canvas.create_line(370, 32, 700, 32, dash = (10, 4), fill = "grey")
+	lable_c1 = Label(window, text = "CPU Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
 	lable_c1.place(x = 380, y = 50)
 	lable_c11 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_c11.place(x = 620, y = 50)
+	lable_c11.place(x = 560, y = 50)
 	
-	"""lable_c2 = Label(window, text = "CPU Maximum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
-	lable_c2.place(x = 380, y = 70)
+	lable_c2 = Label(window, text = "Max", fg = 'Black', font=("Helvetica", 10))
+	lable_c2.place(x = 615, y = 35)
 	lable_c22 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_c22.place(x = 620, y = 70)
+	lable_c22.place(x = 620, y = 50)
 	
-	lable_c3 = Label(window, text = "CPU Minimum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
-	lable_c3.place(x = 380, y = 90)
+	lable_c3 = Label(window, text = "Min", fg = 'Black', font=("Helvetica", 10))
+	lable_c3.place(x = 655, y = 35)
 	lable_c33 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_c33.place(x = 620, y = 90)"""
+	lable_c33.place(x = 660, y = 50)
 	
-	lable_g1 = Label(window, text = "GPU Current Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
-	lable_g1.place(x = 380, y = 110)
+	lable_g1 = Label(window, text = "GPU Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
+	lable_g1.place(x = 380, y = 70)
 	lable_g11 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_g11.place(x = 620, y = 110)
+	lable_g11.place(x = 560, y = 70)
 	
-	"""lable_g2 = Label(window, text = "GPU Maximum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
-	lable_g2.place(x = 380, y = 130)
 	lable_g22 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_g22.place(x = 620, y = 130)
+	lable_g22.place(x = 620, y = 70)
 	
-	lable_g3 = Label(window, text = "GPU Minimum Temperature (Celcius) : ", fg = 'Black', font=("Helvetica", 10))
-	lable_g3.place(x = 380, y = 150)
 	lable_g33 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_g33.place(x = 620, y = 150)"""
+	lable_g33.place(x = 660, y = 70)
 	
 	lable_m4 = Label(window, text = "CPU fan RPM : ", fg = 'Black', font=("Helvetica", 10))
-	lable_m4.place(x = 380, y = 170)
+	lable_m4.place(x = 380, y = 90)
 	lable_m44 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_m44.place(x = 620, y = 170)
+	lable_m44.place(x = 480, y = 90)
 	
 	lable_m5 = Label(window, text = "GPU fan RPM : ", fg = 'Black', font=("Helvetica", 10))
-	lable_m5.place(x = 380, y = 190)
+	lable_m5.place(x = 380, y = 110)
 	lable_m55 = Label(window, text = "", fg = 'Black', font=("Helvetica", 10))
-	lable_m55.place(x = 620, y = 190)
+	lable_m55.place(x = 480, y = 110)
 	
-	"""global temp_c
-	global temp_c_m
-	global temp_g
-	global temp_g_m"""
-	
-	monitoring_int(lable_c11, lable_g11, lable_m44, lable_m55)
+	monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55)
 	return
 	
 def unmonitor():
@@ -377,7 +387,7 @@ def advanced_on():
 	lable_ct3_t.place(x = 130, y = offset + 527)
 	lable_ct4_t = Label(window, text = "60°C", fg = 'Yellow', font=("Helvetica", 10))
 	lable_ct4_t.place(x = 180, y = offset + 527)
-	lable_ct5_t = Label(window, text = "70°C", fg = 'Red', font=("Helvetica", 10))
+	lable_ct5_t = Label(window, text = "70°C", fg = 'orange', font=("Helvetica", 10))
 	lable_ct5_t.place(x = 230, y = offset + 527)
 	lable_ct6_t = Label(window, text = "80°C", fg = 'Red', font=("Helvetica", 10))
 	lable_ct6_t.place(x = 280, y = offset + 527)
@@ -391,7 +401,7 @@ def advanced_on():
 	lable_gt3_t.place(x = 130, y = offset + 810)
 	lable_gt4_t = Label(window, text = "60°C", fg = 'Yellow', font=("Helvetica", 10))
 	lable_gt4_t.place(x = 180, y = offset + 810)
-	lable_gt5_t = Label(window, text = "70°C", fg = 'red', font=("Helvetica", 10))
+	lable_gt5_t = Label(window, text = "70°C", fg = 'orange', font=("Helvetica", 10))
 	lable_gt5_t.place(x = 230, y = offset + 810)
 	lable_gt6_t = Label(window, text = "80°C", fg = 'red', font=("Helvetica", 10))
 	lable_gt6_t.place(x = 280, y = offset + 810)
