@@ -7,8 +7,6 @@ import sys
 import subprocess
 from crontab import CronTab
 import getpass
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,  NavigationToolbar2Tk)
 import threading
 import time
 
