@@ -35,6 +35,10 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 # For any issue and query comment!
 
+# Working on models
+- MSI GE66
+- MSI GS65
+
 # Goals
 ```
   - Basic GUI                                          Done
