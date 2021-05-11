@@ -43,6 +43,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Basic temperature and RPM monitoring               Done
   - One click install                                  Done
   - Enable at startup                                  Done
+  - Dark Mode                                          Done
   - Making Pre-required installs automatic             In Beta Testing
   - Graph to monitor Temps and speeds                  In alpha testing
   - integrating it in a widget in power menu           still planning
@@ -54,3 +55,4 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 ## Fixed :- 2
 - (CLOSED) Battery indicator shown 0 When applying fan modes
 - (CLOSED) Button was not visible
+- (CLOSED) Install errors
