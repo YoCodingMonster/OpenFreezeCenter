@@ -35,7 +35,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # ERROR 1
 - if error is produced saying ```in monitoring_int with open(EC_IO_FILE,'r+b') as file: FileNotFoundError: [Errno 2] No such file or directory: '/sys/kernel/debug/ec/ec0/io' Exception in thread Thread-1:``` then you have to install all the repositories mentioned in the readme file above. DO NOT SKIP ANY ONE OF THEM!. if this method dosent work then follow next step.
 - manually copy paset these files in specific folders
-- ```DOWNLOADFOLDER/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf"
+- ```DOWNLOADFOLDER/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf"```
 - ```DOWNLOADFOLDER/etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf"```
 
 # For any issue and query comment!
