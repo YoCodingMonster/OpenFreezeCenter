@@ -31,7 +31,12 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - After making the above requirements available manually. open terminal inside the extracted folder ```MSI-Deagon-Center-for-Linux``` directory and run.
 - ```sudo python3 GUI-MSI-DC-L.py```
 - This will open the GUI app for the first time.
-- enable ```Run at startup``` option to automatically open software at linux bootup!! otherwise you can always use the above command to launch the software whenever needed!!
+# Error after installing
+# ERROR 1
+- if error is produced saying ```in monitoring_int with open(EC_IO_FILE,'r+b') as file: FileNotFoundError: [Errno 2] No such file or directory: '/sys/kernel/debug/ec/ec0/io' Exception in thread Thread-1:``` then you have to install all the repositories mentioned in the readme file above. DO NOT SKIP ANY ONE OF THEM!. if this method dosent work then follow next step.
+- manually copy paset these files in specific folders
+- ```DOWNLOADFOLDER/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf"
+- ```DOWNLOADFOLDER/etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf"```
 
 # For any issue and query comment!
 
@@ -46,8 +51,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Auto, Basic, Advanced, Cooler Booster              Done
   - Basic temperature and RPM monitoring               Done
   - One click install                                  Done
-  - Enable at startup                                  Done
   - Dark Mode                                          Done
+  - configuration file                                 In progress
   - Making Pre-required installs automatic             In Beta Testing
   - Graph to monitor Temps and speeds                  In alpha testing
   - integrating it in a widget in power menu           still planning
