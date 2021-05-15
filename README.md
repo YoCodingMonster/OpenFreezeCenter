@@ -41,8 +41,9 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # For any issue and query comment!
 
 # Working on models
-- MSI GE66
-- MSI GS65
+- MSI GE66 (Ubuntu based OS)
+- MSI GS65 (Ubuntu based OS)
+- HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Goals
 ```
