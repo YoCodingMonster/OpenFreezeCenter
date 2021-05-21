@@ -31,6 +31,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - After making the above requirements available manually. open terminal inside the extracted folder ```MSI-Deagon-Center-for-Linux``` directory and run.
 - ```sudo python3 GUI-MSI-DC-L.py```
 - This will open the GUI app for the first time.
+- App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
 # Error after installing
 # ERROR 1
 - if error is produced saying ```in monitoring_int with open(EC_IO_FILE,'r+b') as file: FileNotFoundError: [Errno 2] No such file or directory: '/sys/kernel/debug/ec/ec0/io' Exception in thread Thread-1:``` then you have to install all the repositories mentioned in the readme file above. DO NOT SKIP ANY ONE OF THEM!. if this method dosent work then follow next step.
@@ -53,16 +54,16 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Basic temperature and RPM monitoring               Done
   - One click install                                  Done
   - Dark Mode                                          Done
-  - configuration file                                 In progress
+  - configuration file                                 Done
   - Making Pre-required installs automatic             In Beta Testing
   - Graph to monitor Temps and speeds                  In alpha testing
   - integrating it in a widget in power menu           still planning
 ```
 
-# Known Bugs in V1.0 :- 2
+# Known Bugs :- 3
 ## Unfixed :- 0
 -
-## Fixed :- 2
+## Fixed :- 3
 - (CLOSED) Battery indicator shown 0 When applying fan modes
 - (CLOSED) Button was not visible
 - (CLOSED) Install errors
