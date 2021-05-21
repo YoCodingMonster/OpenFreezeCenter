@@ -24,7 +24,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - get it by :-> ```sudo apt-get install python3-crontab```
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
-# BEOFRE UPDATING PLEASE UNINSTALL THE PREVIOUS VERSION BY USING THE PROVIDED UNINSTALL OPTION IN THIS SOFTWARE
+# NO NEED TO UNINSTALL THE PREVIOUS VERSION OF MY SOFTWARE. JUST REPLACE THE MAIN ```GUI-MSI-DC-L.PY``` FILE AND YOU ARE GOOD TO GO!!
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it whereever you want
@@ -54,7 +54,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Basic temperature and RPM monitoring               Done
   - One click install                                  Done
   - Dark Mode                                          Done
-  - configuration file                                 Done
+  - Configuration file                                 Done
+  - Back version support                               Done
   - Making Pre-required installs automatic             In Beta Testing
   - Graph to monitor Temps and speeds                  In alpha testing
   - integrating it in a widget in power menu           still planning
