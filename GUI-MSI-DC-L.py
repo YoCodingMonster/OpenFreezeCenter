@@ -176,7 +176,7 @@ lable2.place(x = 140, y = 25)
 lable_ = Label(window, text = "Owner of Ideas", fg = 'Violet', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 10))
 lable_.place(x = 5, y = 110)
 
-lable__ = Label(window, text = "Permanent Monitering and Battery panels :-> Rob Oudendijk", fg = 'Violet', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 10))
+lable__ = Label(window, text = "Permanent Monitoring and Battery panels :-> Rob Oudendijk", fg = 'Violet', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 10))
 lable__.place(x = 5, y = 130)
 
 lable___ = Label(window, text = "Dark Mode :-> Rob Oudendijk", fg = 'Violet', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 10))
@@ -324,7 +324,7 @@ def batt_thresh():
 			file.write(bytes((value,)))
 	return
 
-lable_m = Label(window, text = "Monitering", fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 16))
+lable_m = Label(window, text = "Monitoring", fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 16))
 lable_m.place(x = 470, y = 5)
 canvas.create_line(370, 0, 370, 920, dash = (10, 4), fill = "grey")
 canvas.create_line(370, 32, 700, 32, dash = (10, 4), fill = "grey")
