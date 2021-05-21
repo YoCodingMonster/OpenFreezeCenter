@@ -22,10 +22,15 @@ if check_1 == False:
 	open(my_filename, "w").close()
 	subprocess.call(['chmod', '0777', my_filename])
 	conf_file = open(my_filename, "w")
-	conf_file.write('0')
+	conf_file.writelines("0\n1\n0\n")
+	temp_ = [140,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
+	for val in temp_:
+		conf_file.write("%i," % val)
 	conf_file.close()
 conf_file_a = open(my_filename, "r")
 mode = int(conf_file_a.read(1))
+all_lines = conf_file_a.readlines()
+mode_f = all_lines[1]
 conf_file_a.close()
 
 fm, offset, y = 12, 0, 100
@@ -36,6 +41,7 @@ temp_c_m = 100
 temp_g_m = 100
 ifu = 0
 v = []
+offset_official = 0
 check = os.path.exists("/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf")
 window = Tk()
 canvas = Canvas(window)
@@ -123,6 +129,35 @@ def write_EC(v):
 		file.write(bytes((v[14],)))
 	return
 
+def config_file_write(u, v):
+	conf_file_b = open(my_filename, "r")
+	all_lines = conf_file_b.readlines()
+	conf_file_b.close()
+	global offset_official
+
+	conf_file = open(my_filename, "w")
+	lines = str(u) + "\n" + str(mode_f) + "\n" + str(offset_official) + "\n"
+	conf_file.writelines(lines)
+	vr = read_EC()
+	count = 0
+
+	if v == 3:
+		for val in vr:
+			conf_file.write("%i," % val)
+
+	else:
+		vr_1 = []
+		vr_2 = []
+		vr_1 = all_lines[3]
+		vr_2 = vr_1.split (",")
+		for i in vr_2:
+			count = count + 1
+			if count < 16:
+				conf_file.write("%i," % int(i))
+
+	conf_file.close()
+	return
+
 def null():
     return
 
@@ -130,11 +165,12 @@ def null():
 
 window.title('MSI Dragon Center for Linux')
 window.geometry('970x270')
+canvas.create_line(0, 210, 370, 210, dash=(10, 4), fill = "grey")
 
 lable1 = Label(window, text = "Creator :-> Aditya Kumar Bajpai", fg = 'red', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 12))
 lable1.place(x = 70, y = 5)
 
-lable2 = Label(window, text = "Version 1.2", fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 12))
+lable2 = Label(window, text = "Version 1.3.1", fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 12))
 lable2.place(x = 140, y = 25)
 
 lable_ = Label(window, text = "Owner of Ideas", fg = 'Violet', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 10))
@@ -149,17 +185,17 @@ lable___.place(x = 5, y = 150)
 """#################################################################################### Dark - Light modes"""
 def dark():
 	button_dark.config(text = "Light Mode", fg = 'grey', command = light)
-	conf_file_d = open(my_filename, "w")
-	conf_file_d.write('1')
-	conf_file_d.close()
+	global mode
+	mode = 1
+	config_file_write(mode, mode_f)
 	messagebox.showinfo("Dark Mode", "Please rerun the software") 
 	return
 	
 def light():
 	button_dark.config(text = "Dark Mode", fg = 'black', command = dark)
-	conf_file_d = open(my_filename, "w")
-	conf_file_d.write('0')
-	conf_file_d.close()
+	global mode
+	mode = 0
+	config_file_write(mode, mode_f)
 	messagebox.showinfo("Light Mode", "Please rerun the software")
 	return
 
@@ -226,6 +262,7 @@ for job in my_cron:
 		button2.config(fg = 'black', text = 'Run at Startup', command = startup)"""
 
 """#################################################################################### Monitor - Unmonitor"""
+
 def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55):
 	global monitoring
 	monitoring = 1
@@ -366,6 +403,9 @@ def auto_on():
 	window.geometry('970x270')
 	vr = [12,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
 	write_EC(vr)
+	global mode_f
+	mode_f = 1
+	config_file_write(mode, 1)
 
 	a_on.config(fg = 'red', bg = 'black' if mode == 1 else 'light grey', command = null)
 	b_on.config(fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = basic_build)
@@ -375,28 +415,30 @@ def auto_on():
 
 """########################################## Baisc Mode"""
 
+basic_slider = Scale(window, from_ = -30, to = 30, orient = HORIZONTAL, length = 200, showvalue = 1, tickinterval = 10, resolution = 10, fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey')
+basic_slider.place(x = 10, y = 265)
+
+def basic_on(offset):
+	vr_b = [140,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
+	vr_new = []
+	vr_new.append(140)
+	for i in range(1, 15):
+		if ((vr_b[i] + offset) >= 0) & ((vr_b[i] + offset) <= 100):
+			vr_new.append(vr_b[i] + offset)
+		if ((vr_b[i] + offset) < 0):
+			vr_new.append(0)
+		if ((vr_b[i] + offset) > 100):
+			vr_new.append(100)
+	global offset_official
+	offset_official = offset
+	write_EC(vr_new)
+	global mode_f
+	mode_f = 2
+	config_file_write(mode, 2)
+	return
+
 def basic_build():
 	window.geometry('970x330')
-
-	basic_slider = Scale(window, from_ = -30, to = 30, orient = HORIZONTAL, length = 200, showvalue = 1, tickinterval = 10, resolution = 10, fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey')
-	basic_slider.place(x = 10, y = 265)
-	
-	def basic_on(offset):
-		vr = [76,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
-		vr_new = []
-		vr_new.append(76)
-		for i in range(1, 15):
-			if ((vr[i] + offset) >= 0) & ((vr[i] + offset) <= 100):
-				vr_new.append(vr[i] + offset)
-				print(vr_new[i])
-			if ((vr[i] + offset) < 0):
-				vr_new.append(0)
-				print(vr_new[i])
-			if ((vr[i] + offset) > 100):
-				vr_new.append(100)
-				print(vr_new[i])
-		write_EC(vr_new)
-		return
 		
 	button_basic = Button(window, text = "Apply", width = 10, fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = lambda: basic_on(basic_slider.get()))
 	button_basic.place(x = 235, y = 280)
@@ -411,11 +453,21 @@ def basic_build():
 
 def advanced_on():
 	v = []
-	v = read_EC()
+	vr_2 = []
+	vr_1 = []
+	conf_file_x = open(my_filename, "r")
+	all_lines = conf_file_x.readlines()
+	vr_1 = all_lines[3]
+	vr_2 = vr_1.split (",")
+	count = 0
+	for i in vr_2:
+		count = count + 1
+		if count < 16:
+			v.append(int(i))
+	conf_file_x.close()
 	window.geometry('970x920')
-	
+
 	offset = 50
-	
 	lable_ct8 = Label(window, text = "CPU fan Speeds" , fg = 'blue', bg = 'black' if mode == 1 else 'light grey', font=("Helvetica", 10))
 	lable_ct8.place(x = 135, y = offset + 280)
 	
@@ -545,6 +597,9 @@ def advanced_on():
 	def adv_apply():
 		vr = [140, sct1.get(), sct2.get(), sct3.get(), sct4.get(), sct5.get(), sct6.get(), sct7.get(), sgt1.get(), sgt2.get(), sgt3.get(), sgt4.get(), sgt5.get(), sgt6.get(), sgt7.get()]
 		write_EC(vr)
+		global mode_f
+		mode_f = 3
+		config_file_write(mode, 3)
 		return
 	
 	adv = Button(window, text = "Apply", width = 20, fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = adv_apply)
@@ -561,8 +616,12 @@ def advanced_on():
 def cooler_booster_on():
 	window.geometry('970x270')
 	with open(EC_IO_FILE,'w+b') as file:
-	    file.seek(0x98)
-	    file.write(bytes((128,)))
+		file.seek(0x98)
+		file.write(bytes((128,)))
+	global mode_f
+	mode_f = 4
+	config_file_write(mode, 4)
+	
 	a_on.config(fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = auto_on)
 	b_on.config(fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = basic_build)
 	ad_on.config(fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = advanced_on)
@@ -584,27 +643,39 @@ ad_on.place(x = 170, y = 235)
 cb_on = Button(window, text = "Cooler Booster", width = 10, fg = 'black' if mode == 0 else 'white', bg = 'black' if mode == 1 else 'light grey', command = cooler_booster_on)
 cb_on.place(x = 250, y = 235)
 
-"""########################################## Fan Mode Select"""
-def fan_mode():
-	v = read_EC()
-	canvas.create_line(0, 210, 370, 210, dash=(10, 4), fill = "grey")
-	window.geometry('970x270')
-
-	if v[0] == 128:
-		cb_on.config(fg = 'red')
-	if v[0] == 12:
-		a_on.config(fg = 'red')
-	if v[0] == 76:
-		b_on.config(fg = 'red')
-	if v[0] == 140:
-		ad_on.config(fg = 'red')
-	return
-    
-fan_mode()
+if int(mode_f) == 1:
+	a_on.config(fg = 'red')
+	auto_on()
+elif int(mode_f) == 2:
+	b_on.config(fg = 'red')
+	conf_file_x = open(my_filename, "r")
+	all_lines = conf_file_x.readlines()
+	offset_official = int(all_lines[2])
+	basic_slider.set(offset_official)
+	basic_on(offset_official)
+elif int(mode_f) == 3:
+	ad_on.config(fg = 'red')
+	vr_3 = []
+	vr_2 = []
+	vr_1 = []
+	conf_file_x = open(my_filename, "r")
+	all_lines = conf_file_x.readlines()
+	vr_1 = all_lines[3]
+	vr_2 = vr_1.split (",")
+	count = 0
+	for i in vr_2:
+		count = count + 1
+		if count < 16:
+			vr_3.append(int(i))
+	write_EC(vr_3)
+	conf_file_x.close()
+	advanced_on()
+else:
+	cb_on.config(fg = 'red')
+	cooler_booster_on()
 
 def on_closing():
-	if monitoring == 1:
-		timer.cancel()
+	timer.cancel()
 	window.destroy()
 	return
 
