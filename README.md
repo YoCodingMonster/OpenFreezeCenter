@@ -7,7 +7,6 @@ final name will be disided soon!
 - This project will be weekly Updated!
 - For more features do comment and share your views!
 - Well if you like my work, a cup of coffee would be nice!!
-- Patreon Page :-> https://www.patreon.com/CodeMonster
 
 For Those running Linux Distro on MSI laptops. This is the Graphic User Interface application meant for Fan control in Linux.
 - This Application can run on any Linux distro with python3 installed!!
