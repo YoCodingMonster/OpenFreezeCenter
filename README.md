@@ -1,5 +1,6 @@
 # MSI-Dragon-Center-for-Linux
-Creating MSI Dragon Center App for Linux Users
+Creating MSI Dragon Center like App for Linux Users
+final name will be disided soon!
 
 # DISCLAIMER : I AM NOT RESPONSIBLE FOR ANY DAMAGE THIS PROJECT CAUSE TO YOUR LAPTOP!
 - Well this will not be harmful if you are on an MSI laptop and looking for Fan Control Abilities just as in Dragon Centre.
