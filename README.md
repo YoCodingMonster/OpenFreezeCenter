@@ -2,8 +2,6 @@
 Creating MSI Dragon Center like App for Linux Users
 final name will be disided soon!
 
-# DISCLAIMER : I AM NOT RESPONSIBLE FOR ANY DAMAGE THIS PROJECT CAUSE TO YOUR LAPTOP!
-- Well this will not be harmful if you are on an MSI laptop and looking for Fan Control Abilities just as in Dragon Centre.
 - This project will be weekly Updated!
 - For more features do comment and share your views!
 - Well if you like my work, a cup of coffee would be nice!!
@@ -57,8 +55,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Configuration file                                 Done
   - Back version support                               Done
   - Making Pre-required installs automatic             In Beta Testing
-  - Graph to monitor Temps and speeds                  In alpha testing
-  - integrating it in a widget in power menu           still planning
+  - Graph to monitor Temps and speeds                  In alpha Testing
+  - integrating it in a widget in power menu           In alpha Testing
 ```
 
 # Known Bugs :- 3
