@@ -1,5 +1,5 @@
 # MSI Dragon Center for Linux
-# )fficial name :- OpenFreezeCenter
+# Official name :- OpenFreezeCenter
 
 - This project will be weekly Updated!
 - For more features do comment and share your views!
