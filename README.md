@@ -1,6 +1,5 @@
-# MSI-Dragon-Center-for-Linux
-Creating MSI Dragon Center like App for Linux Users
-final name will be disided soon!
+# MSI Dragon Center for Linux
+# official name :- OpenFreezeCenter
 
 - This project will be weekly Updated!
 - For more features do comment and share your views!
@@ -23,19 +22,14 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
 # NO NEED TO UNINSTALL THE PREVIOUS VERSION OF MY SOFTWARE. JUST REPLACE THE MAIN ```GUI-MSI-DC-L.PY``` FILE AND YOU ARE GOOD TO GO!!
+# DO INCLUDE OTHER FILES IN SAME DIRECTORY AS ```GUI-MSI-DC-L.PY```
 
 # How To Install GUI app?
-- Download the .zip from the github and extract it whereever you want
+- Download the .zip from the github and extract it wherever you want
 - After making the above requirements available manually. open terminal inside the extracted folder ```MSI-Deagon-Center-for-Linux``` directory and run.
-- ```sudo python3 GUI-MSI-DC-L.py```
+- ```./at_startup.sh```
 - This will open the GUI app for the first time.
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
-# Error after installing
-# ERROR 1
-- if error is produced saying ```in monitoring_int with open(EC_IO_FILE,'r+b') as file: FileNotFoundError: [Errno 2] No such file or directory: '/sys/kernel/debug/ec/ec0/io' Exception in thread Thread-1:``` then you have to install all the repositories mentioned in the readme file above. DO NOT SKIP ANY ONE OF THEM!. if this method dosent work then follow next step.
-- manually copy paset these files in specific folders
-- ```DOWNLOADFOLDER/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf"```
-- ```DOWNLOADFOLDER/etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf TO /etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf"```
 
 # For any issue and query comment!
 
@@ -59,10 +53,11 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - integrating it in a widget in power menu           In alpha Testing
 ```
 
-# Known Bugs :- 3
+# Known Bugs :- 4
 ## Unfixed :- 0
 -
-## Fixed :- 3
+## Fixed :- 4
 - (CLOSED) Battery indicator shown 0 When applying fan modes
 - (CLOSED) Button was not visible
 - (CLOSED) Install errors
+- (CLOSED) Installation on other distro like fedora and arch now working
