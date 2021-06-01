@@ -1,0 +1,8 @@
+[settings]
+mode = 0
+offset = 0
+vr_custom = [ 13, 45, 50, 60, 72, 80, 85, 100, 0, 50, 60, 72, 80, 85, 100,]
+four = 4
+
+[ui]
+dark_mode_enabled = false
