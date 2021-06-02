@@ -76,7 +76,7 @@ class AppUI:
 
         self.tab_parent.pack(expand=1, fill="both")
 
-        # Add ui elements
+        # Add ui ements
         self.setup_about()
         self.setup_settings()
         self.setup_overview()
@@ -416,8 +416,6 @@ class AppUI:
         mode = self.config["settings"]["mode"]
         vr = self.config["settings"]["vr_custom"]
         offset = self.config["settings"]["offset"]
-
-        print("setting mode %s %s %s" % (mode, vr, offset))
 
         controller.enable_mode(mode, vr, offset)
 

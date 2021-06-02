@@ -10,7 +10,13 @@ import argparse
 
 import controller
 import configurator
-import ui
+
+# May want cli only
+try:
+    import ui
+except ImportError:
+    pass
+
 import driver
 
 
