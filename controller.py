@@ -21,7 +21,6 @@ MODE_COOLERBOOST = 3
 
 def read_EC():
     vr = []
-
     try:
         with open(EC_IO_FILE, "r+b") as file:
             file.seek(0x98)
@@ -69,7 +68,6 @@ def read_EC():
 
 def write_EC(v):
     MIN_VR_LENGTH = 14
-
     # Make sure v is valid - Default to cooler boost
     try:
         if len(v) < MIN_VR_LENGTH:
@@ -139,13 +137,11 @@ def enable_mode(mode=MODE_AUTO, vr=DEFAULT_VR_AUTO, offset=DEFAULT_OFFSET):
     """
     # Auto
     if mode == MODE_AUTO:
-        print("DEBUG: AUTO")
         vr_new = DEFAULT_VR_AUTO
         write_EC(vr_new)
 
     # Basic
     elif mode == MODE_BASIC:
-        print("DEBUG: BASIC")
         offset_official = offset
         vr_b = DEFAULT_VR_BASIC
         vr_new = DEFAULT_VR_BASIC
@@ -163,7 +159,6 @@ def enable_mode(mode=MODE_AUTO, vr=DEFAULT_VR_AUTO, offset=DEFAULT_OFFSET):
 
     # Advanced
     elif mode == MODE_ADVANCED:
-        print("DEBUG: ADV")
         vr_3 = []
         vr_2 = []
         vr_1 = []
@@ -177,14 +172,12 @@ def enable_mode(mode=MODE_AUTO, vr=DEFAULT_VR_AUTO, offset=DEFAULT_OFFSET):
 
     # Coolser Boost
     else:
-        print("DEBUG: BOOST")
         vr_new = DEFAULT_VR_COOLERBOOST
         write_EC(vr_new)
 
 
 def get_stats():
     stats = dict()
-
     try:
         with open(EC_IO_FILE, "r+b") as file:
             file.seek(0x68)
@@ -210,16 +203,11 @@ def get_stats():
 
     except:
         print("Error reading EC")
-        stats = get_stats_debug()
+        stats = {
+            "CPU_RPM": 0,
+            "GPU_RPM": 0,
+            "CPU_TEMP": 0,
+            "GPU_TEMP": 0,
+        }
 
-    return stats
-
-
-def get_stats_debug():
-    stats = {
-        "CPU_RPM": 0,
-        "GPU_RPM": 0,
-        "CPU_TEMP": 0,
-        "GPU_TEMP": 0,
-    }
     return stats
