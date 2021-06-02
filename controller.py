@@ -5,7 +5,6 @@
 import sys
 import os
 
-
 # Constants
 EC_IO_FILE = "/sys/kernel/debug/ec/ec0/io"
 DEFAULT_MODE = 0
@@ -22,44 +21,48 @@ MODE_COOLERBOOST = 3
 
 def read_EC():
     vr = []
-    with open(EC_IO_FILE, "r+b") as file:
-        file.seek(0x98)
-        if int(file.read(1).hex(), 16) == 128:
-            file.seek(0x98)
-            vr.insert(0, int(file.read(1).hex(), 16))
-        else:
-            file.seek(0xF4)
-            vr.insert(0, int(file.read(1).hex(), 16))
-        file.seek(114)
-        vr.insert(1, int(file.read(1).hex(), 16))
-        file.seek(115)
-        vr.insert(2, int(file.read(1).hex(), 16))
-        file.seek(116)
-        vr.insert(3, int(file.read(1).hex(), 16))
-        file.seek(117)
-        vr.insert(4, int(file.read(1).hex(), 16))
-        file.seek(118)
-        vr.insert(5, int(file.read(1).hex(), 16))
-        file.seek(119)
-        vr.insert(6, int(file.read(1).hex(), 16))
-        file.seek(120)
-        vr.insert(7, int(file.read(1).hex(), 16))
-        file.seek(138)
-        vr.insert(8, int(file.read(1).hex(), 16))
-        file.seek(139)
-        vr.insert(9, int(file.read(1).hex(), 16))
-        file.seek(140)
-        vr.insert(10, int(file.read(1).hex(), 16))
-        file.seek(141)
-        vr.insert(11, int(file.read(1).hex(), 16))
-        file.seek(142)
-        vr.insert(12, int(file.read(1).hex(), 16))
-        file.seek(143)
-        vr.insert(13, int(file.read(1).hex(), 16))
-        file.seek(144)
-        vr.insert(14, int(file.read(1).hex(), 16))
 
-    file.close()
+    try:
+        with open(EC_IO_FILE, "r+b") as file:
+            file.seek(0x98)
+            if int(file.read(1).hex(), 16) == 128:
+                file.seek(0x98)
+                vr.insert(0, int(file.read(1).hex(), 16))
+            else:
+                file.seek(0xF4)
+                vr.insert(0, int(file.read(1).hex(), 16))
+            file.seek(114)
+            vr.insert(1, int(file.read(1).hex(), 16))
+            file.seek(115)
+            vr.insert(2, int(file.read(1).hex(), 16))
+            file.seek(116)
+            vr.insert(3, int(file.read(1).hex(), 16))
+            file.seek(117)
+            vr.insert(4, int(file.read(1).hex(), 16))
+            file.seek(118)
+            vr.insert(5, int(file.read(1).hex(), 16))
+            file.seek(119)
+            vr.insert(6, int(file.read(1).hex(), 16))
+            file.seek(120)
+            vr.insert(7, int(file.read(1).hex(), 16))
+            file.seek(138)
+            vr.insert(8, int(file.read(1).hex(), 16))
+            file.seek(139)
+            vr.insert(9, int(file.read(1).hex(), 16))
+            file.seek(140)
+            vr.insert(10, int(file.read(1).hex(), 16))
+            file.seek(141)
+            vr.insert(11, int(file.read(1).hex(), 16))
+            file.seek(142)
+            vr.insert(12, int(file.read(1).hex(), 16))
+            file.seek(143)
+            vr.insert(13, int(file.read(1).hex(), 16))
+            file.seek(144)
+            vr.insert(14, int(file.read(1).hex(), 16))
+
+        file.close()
+    except:
+        print("Error reading EC")
 
     return vr
 
@@ -74,51 +77,54 @@ def write_EC(v):
     except TypeError:
         v = None
 
-    with open(EC_IO_FILE, "w+b") as file:
-        if v == None:
-            file.seek(0x98)
-            file.write(bytes((128,)))
-            return
-        elif v[0] == 128:
-            file.seek(0x98)
-            file.write(bytes((128,)))
-            file.seek(0xF4)
-            file.write(bytes((0,)))
-        else:
-            file.seek(0x98)
-            file.write(bytes((0,)))
-            file.seek(0xF4)
-            file.write(bytes((v[0],)))
-        file.seek(114)
-        file.write(bytes((v[1],)))
-        file.seek(115)
-        file.write(bytes((v[2],)))
-        file.seek(116)
-        file.write(bytes((v[3],)))
-        file.seek(117)
-        file.write(bytes((v[4],)))
-        file.seek(118)
-        file.write(bytes((v[5],)))
-        file.seek(119)
-        file.write(bytes((v[6],)))
-        file.seek(120)
-        file.write(bytes((v[7],)))
-        file.seek(138)
-        file.write(bytes((v[8],)))
-        file.seek(139)
-        file.write(bytes((v[9],)))
-        file.seek(140)
-        file.write(bytes((v[10],)))
-        file.seek(141)
-        file.write(bytes((v[11],)))
-        file.seek(142)
-        file.write(bytes((v[12],)))
-        file.seek(143)
-        file.write(bytes((v[13],)))
-        file.seek(144)
-        file.write(bytes((v[14],)))
+    try:
+        with open(EC_IO_FILE, "w+b") as file:
+            if v == None:
+                file.seek(0x98)
+                file.write(bytes((128,)))
+                return
+            elif v[0] == 128:
+                file.seek(0x98)
+                file.write(bytes((128,)))
+                file.seek(0xF4)
+                file.write(bytes((0,)))
+            else:
+                file.seek(0x98)
+                file.write(bytes((0,)))
+                file.seek(0xF4)
+                file.write(bytes((v[0],)))
+            file.seek(114)
+            file.write(bytes((v[1],)))
+            file.seek(115)
+            file.write(bytes((v[2],)))
+            file.seek(116)
+            file.write(bytes((v[3],)))
+            file.seek(117)
+            file.write(bytes((v[4],)))
+            file.seek(118)
+            file.write(bytes((v[5],)))
+            file.seek(119)
+            file.write(bytes((v[6],)))
+            file.seek(120)
+            file.write(bytes((v[7],)))
+            file.seek(138)
+            file.write(bytes((v[8],)))
+            file.seek(139)
+            file.write(bytes((v[9],)))
+            file.seek(140)
+            file.write(bytes((v[10],)))
+            file.seek(141)
+            file.write(bytes((v[11],)))
+            file.seek(142)
+            file.write(bytes((v[12],)))
+            file.seek(143)
+            file.write(bytes((v[13],)))
+            file.seek(144)
+            file.write(bytes((v[14],)))
 
-    file.close()
+        file.close()
+    except:
+        print("Error reading EC")
 
     return
 
@@ -176,40 +182,44 @@ def enable_mode(mode=MODE_AUTO, vr=DEFAULT_VR_AUTO, offset=DEFAULT_OFFSET):
         write_EC(vr_new)
 
 
-def get_stats_real():
+def get_stats():
     stats = dict()
 
-    with open(EC_IO_FILE, "r+b") as file:
-        file.seek(0x68)
-        cpu_cur_temp = int(file.read(1).hex(), 16)
-        file.seek(0x80)
-        gpu_cur_temp = int(file.read(1).hex(), 16)
-        file.seek(0xCC)
-        cpu_fan = int(file.read(2).hex(), 16)
-        if cpu_fan != 0:
-            cpu_fan = 478000 // cpu_fan
-        file.seek(0xCA)
-        gpu_fan = int(file.read(2).hex(), 16)
-        if gpu_fan != 0:
-            gpu_fan = 478000 // gpu_fan
+    try:
+        with open(EC_IO_FILE, "r+b") as file:
+            file.seek(0x68)
+            cpu_cur_temp = int(file.read(1).hex(), 16)
+            file.seek(0x80)
+            gpu_cur_temp = int(file.read(1).hex(), 16)
+            file.seek(0xCC)
+            cpu_fan = int(file.read(2).hex(), 16)
+            if cpu_fan != 0:
+                cpu_fan = 478000 // cpu_fan
+            file.seek(0xCA)
+            gpu_fan = int(file.read(2).hex(), 16)
+            if gpu_fan != 0:
+                gpu_fan = 478000 // gpu_fan
 
-        stats = {
-            "CPU_RPM": cpu_fan,
-            "GPU_RPM": gpu_fan,
-            "CPU_TEMP": cpu_cur_temp,
-            "GPU_TEMP": gpu_cur_temp,
-        }
-    file.close()
+            stats = {
+                "CPU_RPM": cpu_fan,
+                "GPU_RPM": gpu_fan,
+                "CPU_TEMP": cpu_cur_temp,
+                "GPU_TEMP": gpu_cur_temp,
+            }
+        file.close()
+
+    except:
+        print("Error reading EC")
+        stats = get_stats_debug()
 
     return stats
 
 
-def get_stats():
+def get_stats_debug():
     stats = {
-        "CPU_RPM": 53,
-        "GPU_RPM": 50,
-        "CPU_TEMP": 52,
-        "GPU_TEMP": 51,
+        "CPU_RPM": 0,
+        "GPU_RPM": 0,
+        "CPU_TEMP": 0,
+        "GPU_TEMP": 0,
     }
-
     return stats
