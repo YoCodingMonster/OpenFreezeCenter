@@ -76,6 +76,16 @@ class AppUI:
         self.setup_monitor()
 
         self.update_ui()
+        self.update_stats()
+
+        self.updater(root)  # This function runs every x seconds as per the config file
+
+    def updater(self, root):
+
+        self.update_stats()
+
+        # Update this every x seconds
+        root.after(self.config["ui"]["update_freq"] * 1000, self.updater)
 
     def update_ui(self):
 
@@ -107,6 +117,14 @@ class AppUI:
             self.button_advanced["fg"] = "red"
         elif self.config["settings"]["mode"] == MODE_COOLERBOOST:
             self.button_boost["fg"] = "red"
+
+    def update_stats(self):
+        stats = controller.get_stats()
+
+        self.msg_cpu_temp["text"] = stats["CPU_TEMP"]
+        self.msg_gpu_temp["text"] = stats["GPU_TEMP"]
+        self.msg_cpu_rpm["text"] = stats["CPU_RPM"]
+        self.msg_gpu_rpm["text"] = stats["GPU_RPM"]
 
     #######################################
     ### UI Setup Design                ####
@@ -142,6 +160,23 @@ class AppUI:
         self.label_gpu_rpm["font"] = self.ft
         self.label_gpu_rpm["text"] = "GPU Fan RPM"
 
+        # Messages - where the values are stored
+        self.msg_cpu_temp = tk.Message(self.tab_monitor)
+        self.msg_cpu_temp["font"] = self.ft
+        self.msg_cpu_temp["text"] = "NA"
+
+        self.msg_gpu_temp = tk.Message(self.tab_monitor)
+        self.msg_gpu_temp["font"] = self.ft
+        self.msg_gpu_temp["text"] = "NA"
+
+        self.msg_cpu_rpm = tk.Message(self.tab_monitor)
+        self.msg_cpu_rpm["font"] = self.ft
+        self.msg_cpu_rpm["text"] = "NA"
+
+        self.msg_gpu_rpm = tk.Message(self.tab_monitor)
+        self.msg_gpu_rpm["font"] = self.ft
+        self.msg_gpu_rpm["text"] = "NA"
+
         # Position elements
         self.label_cpu_temp.place(y=30, x=0, width=120, height=30)
         self.label_gpu_temp.place(y=60, x=0, width=120, height=30)
@@ -152,7 +187,13 @@ class AppUI:
         self.label_min.place(y=0, x=180, width=60, height=30)
         self.label_max.place(y=0, x=240, width=60, height=30)
 
-        # TODO: Add monitoring values
+        self.msg_cpu_temp.place(y=30, x=120, width=60, height=30)
+        self.msg_gpu_temp.place(y=60, x=120, width=60, height=30)
+        self.msg_cpu_rpm.place(y=90, x=120, width=60, height=30)
+        self.msg_gpu_rpm.place(y=120, x=120, width=60, height=30)
+
+        # Add values into ui
+        self.update_stats()
 
     def setup_overview(self):
 

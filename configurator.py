@@ -41,6 +41,7 @@ def write_default_config():
     ]
 
     config["ui"]["dark_mode_enabled"] = False
+    config["ui"]["update_freq"] = 10
 
     # Not sure what this is but it was in the first config file on line 2
     config["settings"]["four"] = 4

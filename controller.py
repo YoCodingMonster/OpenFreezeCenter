@@ -176,7 +176,7 @@ def enable_mode(mode=MODE_AUTO, vr=DEFAULT_VR_AUTO, offset=DEFAULT_OFFSET):
         write_EC(vr_new)
 
 
-def get_stats():
+def get_stats_real():
     stats = dict()
 
     with open(EC_IO_FILE, "r+b") as file:
@@ -200,5 +200,16 @@ def get_stats():
             "GPU_TEMP": gpu_cur_temp,
         }
     file.close()
+
+    return stats
+
+
+def get_stats():
+    stats = {
+        "CPU_RPM": 53,
+        "GPU_RPM": 50,
+        "CPU_TEMP": 52,
+        "GPU_TEMP": 51,
+    }
 
     return stats

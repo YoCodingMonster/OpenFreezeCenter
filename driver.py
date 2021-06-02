@@ -12,7 +12,6 @@ def is_installed():
 
 
 def install():
-    # Returns true is it worked
     command = os.system(
         'x-terminal-emulator -e \'bash -c "sudo install -Dm 644 etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf "${pkgdir}/etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf" && sudo install -Dm 644 etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf "${pkgdir}/etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf"; exec bash"\''
     )
@@ -24,7 +23,6 @@ def install():
 
 
 def uninstall():
-
     command = os.system(
         "x-terminal-emulator -e 'bash -c \"sudo rm /etc/modprobe.d/GUI-MSI-DC-L-ec_sys.conf /etc/modules-load.d/GUI-MSI-DC-L-ec_sys.conf; exec bash\"'"
     )
