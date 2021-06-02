@@ -420,7 +420,7 @@ class AppUI:
         print("setting mode %s %s %s" % (mode, vr, offset))
 
         # Ask for root permissions here
-        # controller.enable_mode(mode, vr, offset)
+        controller.enable_mode(mode, vr, offset)
 
 
 def open_ui():
