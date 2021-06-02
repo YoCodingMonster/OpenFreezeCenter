@@ -5,11 +5,14 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import *
 from tkinter import font
+from pandas._config import config
 from ttkthemes import ThemedStyle
 from tkinter import messagebox
 
 import os
 import sys
+import datetime
+import pandas as pd
 
 import configurator
 import controller
@@ -30,32 +33,36 @@ LIGHT_THEME = "scidgrey"
 
 class AppUI:
     def __init__(self, root):
+
+        self.root = root
+
         # Get config
         self.config = configurator.get_config()
 
-        # setting title
-        root.title("OpenFreezeCenter")
+        # Log dataframe
+        self.df_stats = pd.DataFrame()
 
-        # setting window size
+        # setting window params
+        self.root.title("OpenFreezeCenter")
         self.width = 370 * 2
         self.height = 270 * 2
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
+        screenwidth = self.root.winfo_screenwidth()
+        screenheight = self.root.winfo_screenheight()
         alignstr = "%dx%d+%d+%d" % (
             self.width,
             self.height,
             (screenwidth - self.width) / 2,
             (screenheight - self.height) / 2,
         )
-        root.geometry(alignstr)
-        root.resizable(width=False, height=False)
+        self.root.geometry(alignstr)
+        self.root.resizable(width=False, height=False)
 
         # Asign theme
-        self.style = ThemedStyle(root)
+        self.style = ThemedStyle(self.root)
         self.ft = font.Font(family="Helvetica", size=12)
 
         # Tabbed ui
-        self.tab_parent = ttk.Notebook(root)
+        self.tab_parent = ttk.Notebook(self.root)
 
         self.tab_overview = ttk.Frame(self.tab_parent)
         self.tab_monitor = ttk.Frame(self.tab_parent)
@@ -75,17 +82,20 @@ class AppUI:
         self.setup_overview()
         self.setup_monitor()
 
+        # Update ui elements
         self.update_ui()
         self.update_stats()
 
-        self.updater(root)  # This function runs every x seconds as per the config file
+        # Continously update the ui.
+        # This function runs every x seconds as per the config file
+        self.updater()
 
-    def updater(self, root):
+    def updater(self):
 
         self.update_stats()
 
         # Update this every x seconds
-        root.after(self.config["ui"]["update_freq"] * 1000, self.updater)
+        self.root.after(self.config["ui"]["update_freq"] * 1000, self.updater)
 
     def update_ui(self):
 
@@ -121,10 +131,24 @@ class AppUI:
     def update_stats(self):
         stats = controller.get_stats()
 
+        # Log stats to pandas
+        stats["DATE"] = pd.to_datetime("now")
+        self.df_stats = self.df_stats.append(stats, ignore_index=True)
+
         self.msg_cpu_temp["text"] = stats["CPU_TEMP"]
         self.msg_gpu_temp["text"] = stats["GPU_TEMP"]
         self.msg_cpu_rpm["text"] = stats["CPU_RPM"]
         self.msg_gpu_rpm["text"] = stats["GPU_RPM"]
+
+        self.msg_cpu_temp_min["text"] = self.df_stats["CPU_TEMP"].min()
+        self.msg_gpu_temp_min["text"] = self.df_stats["GPU_TEMP"].min()
+        self.msg_cpu_rpm_min["text"] = self.df_stats["CPU_RPM"].min()
+        self.msg_gpu_rpm_min["text"] = self.df_stats["GPU_RPM"].min()
+
+        self.msg_cpu_temp_max["text"] = self.df_stats["CPU_TEMP"].max()
+        self.msg_gpu_temp_max["text"] = self.df_stats["GPU_TEMP"].max()
+        self.msg_cpu_rpm_max["text"] = self.df_stats["CPU_RPM"].max()
+        self.msg_gpu_rpm_max["text"] = self.df_stats["GPU_RPM"].max()
 
     #######################################
     ### UI Setup Design                ####
@@ -161,6 +185,7 @@ class AppUI:
         self.label_gpu_rpm["text"] = "GPU Fan RPM"
 
         # Messages - where the values are stored
+        # Current
         self.msg_cpu_temp = tk.Message(self.tab_monitor)
         self.msg_cpu_temp["font"] = self.ft
         self.msg_cpu_temp["text"] = "NA"
@@ -177,6 +202,40 @@ class AppUI:
         self.msg_gpu_rpm["font"] = self.ft
         self.msg_gpu_rpm["text"] = "NA"
 
+        # Min
+        self.msg_cpu_temp_min = tk.Message(self.tab_monitor)
+        self.msg_cpu_temp_min["font"] = self.ft
+        self.msg_cpu_temp_min["text"] = "NA"
+
+        self.msg_gpu_temp_min = tk.Message(self.tab_monitor)
+        self.msg_gpu_temp_min["font"] = self.ft
+        self.msg_gpu_temp_min["text"] = "NA"
+
+        self.msg_cpu_rpm_min = tk.Message(self.tab_monitor)
+        self.msg_cpu_rpm_min["font"] = self.ft
+        self.msg_cpu_rpm_min["text"] = "NA"
+
+        self.msg_gpu_rpm_min = tk.Message(self.tab_monitor)
+        self.msg_gpu_rpm_min["font"] = self.ft
+        self.msg_gpu_rpm_min["text"] = "NA"
+
+        # Max
+        self.msg_cpu_temp_max = tk.Message(self.tab_monitor)
+        self.msg_cpu_temp_max["font"] = self.ft
+        self.msg_cpu_temp_max["text"] = "NA"
+
+        self.msg_gpu_temp_max = tk.Message(self.tab_monitor)
+        self.msg_gpu_temp_max["font"] = self.ft
+        self.msg_gpu_temp_max["text"] = "NA"
+
+        self.msg_cpu_rpm_max = tk.Message(self.tab_monitor)
+        self.msg_cpu_rpm_max["font"] = self.ft
+        self.msg_cpu_rpm_max["text"] = "NA"
+
+        self.msg_gpu_rpm_max = tk.Message(self.tab_monitor)
+        self.msg_gpu_rpm_max["font"] = self.ft
+        self.msg_gpu_rpm_max["text"] = "NA"
+
         # Position elements
         self.label_cpu_temp.place(y=30, x=0, width=120, height=30)
         self.label_gpu_temp.place(y=60, x=0, width=120, height=30)
@@ -191,6 +250,16 @@ class AppUI:
         self.msg_gpu_temp.place(y=60, x=120, width=60, height=30)
         self.msg_cpu_rpm.place(y=90, x=120, width=60, height=30)
         self.msg_gpu_rpm.place(y=120, x=120, width=60, height=30)
+
+        self.msg_cpu_temp_min.place(y=30, x=180, width=60, height=30)
+        self.msg_gpu_temp_min.place(y=60, x=180, width=60, height=30)
+        self.msg_cpu_rpm_min.place(y=90, x=180, width=60, height=30)
+        self.msg_gpu_rpm_min.place(y=120, x=180, width=60, height=30)
+
+        self.msg_cpu_temp_max.place(y=30, x=240, width=60, height=30)
+        self.msg_gpu_temp_max.place(y=60, x=240, width=60, height=30)
+        self.msg_cpu_rpm_max.place(y=90, x=240, width=60, height=30)
+        self.msg_gpu_rpm_max.place(y=120, x=240, width=60, height=30)
 
         # Add values into ui
         self.update_stats()
