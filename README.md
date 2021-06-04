@@ -1,7 +1,6 @@
 # Brand New UI. Now work as App Indicator
 
-# MSI Dragon Center for Linux
-# Official name :- OpenFreezeCenter
+# OpenFreezeCenter
 
 - This project will be weekly Updated!
 - For more features do comment and share your views!
@@ -39,7 +38,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Configuration file                                 Done
   - Back version support                               Done
   - Making Pre-required installs automatic             Done
-  - integrating it as an app indicator           	 Done
+  - integrating it as an app indicator           	     Done
   - Graph to monitor Temps and speeds                  In beta Testing
 ```
 # Known Bugs :- 0
