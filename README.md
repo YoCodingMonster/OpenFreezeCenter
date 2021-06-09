@@ -12,7 +12,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
-# THIS REQUIRES A FRESH INSTALL.   DO UNINSTALL THE PREVIOUS VERSION AND DELETE THE DIRECTORY ALSO
+# DELETE PREVIOUS FOLDER FOR THIS APP AND WORK WITH NEW ONE!
+# SUDO PERMISSIONS REQUIRED FOR CHANGING FAN MODES, MONITERING, EC MAP, BATTERY THRESHOLD
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
@@ -39,7 +40,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Configuration file                                 Done
   - Back version support                               Done
   - Making Pre-required installs automatic             Done
-  - integrating it as an app indicator           	     Done
+  - Integrating it as an app indicator           	     Done
+  - EC Map View                                        Done
   - Graph to monitor Temps and speeds                  In beta Testing
 ```
 # Known Bugs :- 0
