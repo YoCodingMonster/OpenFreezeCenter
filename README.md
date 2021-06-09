@@ -47,11 +47,11 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - MSI GF63
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
-# Working on Linux distor
+# Working on Linux distro
 - Ubuntu
 - Mint
 - Kubuntu
-- HELP ME ADD MORE DISTORS. TEST AND REPORT ME
+- HELP ME ADD MORE DISTROS. TEST AND REPORT ME
 
 # Goals
 ```
