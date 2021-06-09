@@ -8,12 +8,12 @@ my_filename = os.path.join(path_to_script, "conf.txt")
 
 conf_file_b = open(my_filename, "r")
 all_lines = conf_file_b.readlines()
-mode_f = all_lines[0]
+mode_f = int(all_lines[0])
 battery_threshold = int(all_lines[3]) + 128
 conf_file_b.close()
 
 def write_EC(v, battery_threshold):
-	with open(EC_IO_FILE,'w+b') as file:
+	with open(EC_IO_FILE, 'r+b') as file:
 		if v[0] == 128:
 			file.seek(0x98)
 			file.write(bytes((128,)))
@@ -52,16 +52,29 @@ def write_EC(v, battery_threshold):
 		file.write(bytes((v[13],)))
 		file.seek(144)
 		file.write(bytes((v[14],)))
-		file.seek(0xef)
+		file.seek(239)
 		file.write(bytes((battery_threshold,)))
 	return
 
+def get_temp_list(val):
+	vr = []
+	vr_2 = []
+	vr_1 = []
+	vr_1 = all_lines[val]
+	vr_2 = vr_1.split (",")
+	count = 0
+	for i in vr_2:
+		count = count + 1
+		if count < 16:
+			vr.append(int(i))
+	return vr
+
 if int(mode_f) == 1:
-	vr = [12,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
+	vr = get_temp_list(5)
 	write_EC(vr, battery_threshold)
 elif int(mode_f) == 2:
 	offset_official = int(all_lines[1])
-	vr = [140,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
+	vr = get_temp_list(5)
 	vr_new = []
 	vr_new.append(140)
 	for i in range(1, 15):
@@ -73,20 +86,8 @@ elif int(mode_f) == 2:
 			vr_new.append(100)
 	write_EC(vr_new, battery_threshold)
 elif int(mode_f) == 3:
-	vr = []
-	vr_2 = []
-	vr_1 = []
-	conf_file_x = open(my_filename, "r")
-	all_lines = conf_file_x.readlines()
-	vr_1 = all_lines[2]
-	vr_2 = vr_1.split (",")
-	count = 0
-	for i in vr_2:
-		count = count + 1
-		if count < 16:
-			vr.append(int(i))
+	vr = get_temp_list(2)
 	write_EC(vr, battery_threshold)
-	conf_file_x.close()
 else:
 	with open(EC_IO_FILE,'w+b') as file:
 		file.seek(0x98)

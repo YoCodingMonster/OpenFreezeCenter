@@ -3,6 +3,7 @@
 from tkinter import *
 import os
 import fileinput
+from math import pow
 
 path_to_script = os.path.dirname(os.path.abspath(__file__))
 my_filename = os.path.join(path_to_script, "conf.txt")
@@ -28,7 +29,14 @@ def corrections(lines):
     return
 
 window = Tk()
-dpi_scale = 1
+dpi_base = 76
+dpi = window.winfo_fpixels('1i')
+dpi_scale = round(dpi/dpi_base)
+dpi_scale_reducer = 0
+if dpi_scale == 1:
+    dpi_scale_reducer = 0
+else:
+    dpi_scale_reducer = dpi_scale
 canvas = Canvas(window)
 canvas.configure(bg = 'black')
 window.title('OpenFreezeCenter - Advanced Fan Curve')
@@ -42,8 +50,16 @@ for i in v_temp:
     count = count + 1
     if count < 16:
         v.append(int(i))
+w_temp = all_lines[4].split (",")
+count_w = 0
+w = []
+for j in w_temp:
+    if count_w < 12:
+        print(j)
+        w.append(int(j))
+        count_w = count_w + 1
 lable_ct8 = Label(window, text = "CPU fan Speeds" , fg = 'blue', bg = 'black', font=("Helvetica", 10))
-lable_ct8.place(x = dpi_scale * 135, y = dpi_scale * 10)
+lable_ct8.place(x = dpi_scale * 135 , y = dpi_scale * 10)
 
 lable_gt7 = Label(window, text = "GPU fan Speeds" , fg = 'blue', bg = 'black', font=("Helvetica", 10))
 lable_gt7.place(x = dpi_scale * 135, y = dpi_scale * 290)
@@ -51,62 +67,62 @@ lable_gt7.place(x = dpi_scale * 135, y = dpi_scale * 290)
 canvas.create_line(dpi_scale * 0, dpi_scale * 280, dpi_scale * 370, dpi_scale * 280, dash=(10, 4), fill = "grey")
 
 lable_ct1 = Label(window, text = str(v[1]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct1.place(x = dpi_scale * 35, y = dpi_scale * 30)
+lable_ct1.place(x = (dpi_scale * 25) - pow(3, dpi_scale_reducer), y = dpi_scale * 30)
 lable_ct2 = Label(window, text = str(v[2]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct2.place(x = dpi_scale * 85, y = dpi_scale * 30)
+lable_ct2.place(x = (dpi_scale * 75) - pow(4, dpi_scale_reducer), y = dpi_scale * 30)
 lable_ct3 = Label(window, text = str(v[3]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct3.place(x = dpi_scale * 135, y = dpi_scale * 30)
+lable_ct3.place(x = (dpi_scale * 125) - pow(4, dpi_scale_reducer), y = dpi_scale * 30)
 lable_ct4 = Label(window, text = str(v[4]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct4.place(x = dpi_scale * 185, y = dpi_scale * 30)
+lable_ct4.place(x = (dpi_scale * 175) - pow(4, dpi_scale_reducer), y = dpi_scale * 30)
 lable_ct5 = Label(window, text = str(v[5]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct5.place(x = dpi_scale * 235, y = dpi_scale * 30)
+lable_ct5.place(x = (dpi_scale * 225) - pow(4, dpi_scale_reducer), y = dpi_scale * 30)
 lable_ct6 = Label(window, text = str(v[6]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct6.place(x = dpi_scale * 285, y = dpi_scale * 30)
+lable_ct6.place(x = (dpi_scale * 275) - pow(4, dpi_scale_reducer), y = dpi_scale * 30)
 lable_ct7 = Label(window, text = str(v[7]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_ct7.place(x = dpi_scale * 335, y = dpi_scale * 30)
+lable_ct7.place(x = (dpi_scale * 325) - pow(4, dpi_scale_reducer), y = dpi_scale * 30)
 lable_gt1 = Label(window, text = str(v[8]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt1.place(x = dpi_scale * 35, y = dpi_scale * 310)
+lable_gt1.place(x = (dpi_scale * 25) - pow(3, dpi_scale_reducer), y = dpi_scale * 310)
 lable_gt2 = Label(window, text = str(v[9]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt2.place(x = dpi_scale * 85, y = dpi_scale * 310)
+lable_gt2.place(x = (dpi_scale * 75) - pow(4, dpi_scale_reducer), y = dpi_scale * 310)
 lable_gt3 = Label(window, text = str(v[10]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt3.place(x = dpi_scale * 135, y = dpi_scale * 310)
+lable_gt3.place(x = (dpi_scale * 125) - pow(4, dpi_scale_reducer), y = dpi_scale * 310)
 lable_gt4 = Label(window, text = str(v[11]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt4.place(x = dpi_scale * 185, y = dpi_scale * 310)
+lable_gt4.place(x = (dpi_scale * 175) - pow(4, dpi_scale_reducer), y = dpi_scale * 310)
 lable_gt5 = Label(window, text = str(v[12]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt5.place(x = dpi_scale * 235, y = dpi_scale * 310)
+lable_gt5.place(x = (dpi_scale * 225) - pow(4, dpi_scale_reducer), y = dpi_scale * 310)
 lable_gt6 = Label(window, text = str(v[13]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt6.place(x = dpi_scale * 285, y = dpi_scale * 310)
+lable_gt6.place(x = (dpi_scale * 275) - pow(4, dpi_scale_reducer), y = dpi_scale * 310)
 lable_gt7 = Label(window, text = str(v[14]) + "%", fg = 'white', bg = 'black', font=("Helvetica", 10))
-lable_gt7.place(x = dpi_scale * 335, y = dpi_scale * 310)
+lable_gt7.place(x = (dpi_scale * 325) - pow(4, dpi_scale_reducer), y = dpi_scale * 310)
 
-lable_ct1_t = Label(window, text = "<40°C", fg = 'Green', bg = 'black', font=("Helvetica", 10))
-lable_ct1_t.place(x = dpi_scale * 30, y = dpi_scale * 257)
-lable_ct2_t = Label(window, text = "40°C", fg = 'Green', bg = 'black', font=("Helvetica", 10))
-lable_ct2_t.place(x = dpi_scale * 80, y = dpi_scale * 257)
-lable_ct3_t = Label(window, text = "50°C", fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
-lable_ct3_t.place(x = dpi_scale * 130, y = dpi_scale * 257)
-lable_ct4_t = Label(window, text = "60°C", fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
-lable_ct4_t.place(x = dpi_scale * 180, y = dpi_scale * 257)
-lable_ct5_t = Label(window, text = "70°C", fg = 'orange', bg = 'black', font=("Helvetica", 10))
-lable_ct5_t.place(x = dpi_scale * 230, y = dpi_scale * 257)
-lable_ct6_t = Label(window, text = "80°C", fg = 'Red', bg = 'black', font=("Helvetica", 10))
-lable_ct6_t.place(x = dpi_scale * 280, y = dpi_scale * 257)
-lable_ct7_t = Label(window, text = "90°C", fg = 'Red', bg = 'black', font=("Helvetica", 10))
-lable_ct7_t.place(x = dpi_scale * 330, y = dpi_scale * 257)
-lable_gt1_t = Label(window, text = "<40°C", fg = 'Green', bg = 'black', font=("Helvetica", 10))
-lable_gt1_t.place(x = dpi_scale * 30, y = dpi_scale * 540)
-lable_gt2_t = Label(window, text = "40°C", fg = 'Green', bg = 'black', font=("Helvetica", 10))
-lable_gt2_t.place(x = dpi_scale * 80, y = dpi_scale * 540)
-lable_gt3_t = Label(window, text = "50°C", fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
-lable_gt3_t.place(x = dpi_scale * 130, y = dpi_scale * 540)
-lable_gt4_t = Label(window, text = "60°C", fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
-lable_gt4_t.place(x = dpi_scale * 180, y = dpi_scale * 540)
-lable_gt5_t = Label(window, text = "70°C", fg = 'orange', bg = 'black', font=("Helvetica", 10))
-lable_gt5_t.place(x = dpi_scale * 230, y = dpi_scale * 540)
-lable_gt6_t = Label(window, text = "80°C", fg = 'red', bg = 'black', font=("Helvetica", 10))
-lable_gt6_t.place(x = dpi_scale * 280, y = dpi_scale * 540)
-lable_gt7_t = Label(window, text = "90°C", fg = 'red', bg = 'black', font=("Helvetica", 10))
-lable_gt7_t.place(x = dpi_scale * 330, y = dpi_scale * 540)
+lable_ct1_t = Label(window, text = str("<" + str(w[0]) + "°C"), fg = 'Green', bg = 'black', font=("Helvetica", 10))
+lable_ct1_t.place(x = (dpi_scale * 15) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_ct2_t = Label(window, text = str(str(w[0]) + "°C"), fg = 'Green', bg = 'black', font=("Helvetica", 10))
+lable_ct2_t.place(x = (dpi_scale * 70) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_ct3_t = Label(window, text = str(str(w[1]) + "°C"), fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
+lable_ct3_t.place(x = (dpi_scale * 120) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_ct4_t = Label(window, text = str(str(w[2]) + "°C"), fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
+lable_ct4_t.place(x = (dpi_scale * 170) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_ct5_t = Label(window, text = str(str(w[3]) + "°C"), fg = 'orange', bg = 'black', font=("Helvetica", 10))
+lable_ct5_t.place(x = (dpi_scale * 220) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_ct6_t = Label(window, text = str(str(w[4]) + "°C"), fg = 'Red', bg = 'black', font=("Helvetica", 10))
+lable_ct6_t.place(x = (dpi_scale * 270) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_ct7_t = Label(window, text = str(str(w[5]) + "°C"), fg = 'Red', bg = 'black', font=("Helvetica", 10))
+lable_ct7_t.place(x = (dpi_scale * 320) - pow(3, dpi_scale_reducer), y = dpi_scale * 257)
+lable_gt1_t = Label(window, text = str("<" + str(w[6]) + "°C"), fg = 'Green', bg = 'black', font=("Helvetica", 10))
+lable_gt1_t.place(x = (dpi_scale * 15) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
+lable_gt2_t = Label(window, text = str(str(w[6]) + "°C"), fg = 'Green', bg = 'black', font=("Helvetica", 10))
+lable_gt2_t.place(x = (dpi_scale * 70) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
+lable_gt3_t = Label(window, text = str(str(w[7]) + "°C"), fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
+lable_gt3_t.place(x = (dpi_scale * 120) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
+lable_gt4_t = Label(window, text = str(str(w[8]) + "°C"), fg = 'Yellow', bg = 'black', font=("Helvetica", 10))
+lable_gt4_t.place(x = (dpi_scale * 170) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
+lable_gt5_t = Label(window, text = str(str(w[9]) + "°C"), fg = 'orange', bg = 'black', font=("Helvetica", 10))
+lable_gt5_t.place(x = (dpi_scale * 220) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
+lable_gt6_t = Label(window, text = str(str(w[10]) + "°C"), fg = 'red', bg = 'black', font=("Helvetica", 10))
+lable_gt6_t.place(x = (dpi_scale * 270) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
+lable_gt7_t = Label(window, text = str(str(w[11]) + "°C"), fg = 'red', bg = 'black', font=("Helvetica", 10))
+lable_gt7_t.place(x = (dpi_scale * 320) - pow(3, dpi_scale_reducer), y = dpi_scale * 540)
     
 def sct_val(val):
     lable_ct1.config(text = str(sct1.get()) + "%")
@@ -173,8 +189,8 @@ def adv_apply():
     all_lines = reading()
     lines = str(3) + "\n" + all_lines[1] + "\n"
     for val in vr:
-        lines = lines + str(val) + " , "
-    lines = lines + "\n" + all_lines[3]
+        lines = lines + str(val) + ","
+    lines = lines + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
     corrections(lines)
     return
 

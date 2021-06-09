@@ -3,7 +3,6 @@
 from tkinter import *
 import threading
 import os
-import math
 
 EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
 
@@ -23,17 +22,18 @@ temp_m = 0
 
 window_m = Tk()
 window_m.title('Monitering')
-dpi_scale = 1
+dpi_base = 76
+dpi = window_m.winfo_fpixels('1i')
+dpi_scale = round(dpi/dpi_base)
 window_m.geometry(f'{dpi_scale * 320}x{dpi_scale * 110}')
 canvas = Canvas(window_m)
-canvas.configure(bg = 'black')
 canvas.configure(bg = 'black')
 
 def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55):
 	global monitoring
 	monitoring = 1
 	global timer
-	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55))
+	timer = threading.Timer(5, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55))
 	timer.start()
 	global temp_m
 	temp_m = mode

@@ -1,6 +1,7 @@
 # Brand New UI. Now work as App Indicator
 
-# OpenFreezeCenter
+# MSI Dragon Center for Linux
+# Official name :- OpenFreezeCenter
 
 - This project will be weekly Updated!
 - For more features do comment and share your views!
@@ -12,8 +13,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
-# DELETE PREVIOUS FOLDER FOR THIS APP AND WORK WITH NEW ONE!
-# SUDO PERMISSIONS REQUIRED FOR CHANGING FAN MODES, MONITERING, EC MAP, BATTERY THRESHOLD
+# THIS REQUIRES A FRESH INSTALL.   DO UNINSTALL THE PREVIOUS VERSION AND DELETE THE DIRECTORY ALSO
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
@@ -26,7 +26,6 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # Working on models
 - MSI GE66
 - MSI GS65
-- MSI GF63
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Goals
@@ -40,8 +39,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Configuration file                                 Done
   - Back version support                               Done
   - Making Pre-required installs automatic             Done
-  - Integrating it as an app indicator           	     Done
-  - EC Map View                                        Done
+  - integrating it as an app indicator           	 Done
   - Graph to monitor Temps and speeds                  In beta Testing
 ```
 # Known Bugs :- 0
