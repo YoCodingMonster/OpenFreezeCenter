@@ -56,6 +56,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # Goals
 ```
   - Basic GUI                                          Done
+  - UI Scaling                                         Done
   - Fan Control with GUI                               Done
   - Auto, Basic, Advanced, Cooler Booster              Done
   - Basic temperature and RPM monitoring               Done
