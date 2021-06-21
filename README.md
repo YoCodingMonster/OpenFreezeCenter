@@ -49,6 +49,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # Working on models
 - MSI GE66
 - MSI GS65
+- MSI GS63VR
 - MSI GF63
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
