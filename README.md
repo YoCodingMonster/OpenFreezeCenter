@@ -42,6 +42,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Open terminal inside the extracted folder and run ```./at_startup.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
+- If above methods doesn't work for you follow this link -> @IvanoiuAlexandruPaul -> https://github.com/YoCodingMonster/OpenFreezeCenter/issues/30#issue-925568804
 
 # For any issue and query comment!
 
