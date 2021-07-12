@@ -33,7 +33,7 @@ def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_
 	global monitoring
 	monitoring = 1
 	global timer
-	timer = threading.Timer(5, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55))
+	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55))
 	timer.start()
 	global temp_m
 	temp_m = mode

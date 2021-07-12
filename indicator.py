@@ -21,6 +21,8 @@ my_filename = os.path.join(path_to_script, "conf.txt")
 check_1 = os.path.exists(my_filename)
 
 if check_1 == False:
+    os.system("x-terminal-emulator -e 'bash -c \"./root_permissions.sh\"'")
+    os.system("x-terminal-emulator -e 'bash -c \"sudo ./install_deps.sh\"'")
     open(my_filename, "w").close()
     subprocess.call(['chmod', '0777', my_filename])
     conf_file = open(my_filename, "w")
@@ -39,6 +41,8 @@ if check_1 == False:
         conf_file.write("%i," % val)
     conf_file.close()
     os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}read_temp_set.py >/dev/null 2>&1\"'")
+    
+
 
 def reading():
     conf_file = open(my_filename, "r")
@@ -57,8 +61,12 @@ def corrections(lines):
     conf_file = open(my_filename, "w")
     conf_file.writelines(str_1)
     conf_file.close()
-    os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}write_EC.py >/dev/null 2>&1\"'")
+    os.system("x-terminal-emulator -e 'bash -c \"sudo python3 ${pkgdir}write_EC.py\"'")
     return
+    
+all_lines = reading()
+lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+corrections(lines)
 
 def main():
     indicator = appindicator.Indicator.new(APPINDICATOR_ID, iconpath, appindicator.IndicatorCategory.SYSTEM_SERVICES)
@@ -69,6 +77,7 @@ def main():
 def build_menu():
     menu = gtk.Menu()
     basic_submenu = gtk.Menu()
+    cpu_submenu = gtk.Menu()
     battery_charge_threshold_submenu = gtk.Menu()
     backlight_submenu = gtk.Menu()
 
@@ -127,11 +136,32 @@ def build_menu():
     Separator = gtk.SeparatorMenuItem()                                      ################################# Monitering & Battery Charging Threshold
     menu.append(Separator)
 
-    item_monitor = gtk.MenuItem.new_with_label('Monitoring')
+    item_monitor = gtk.MenuItem.new_with_label('Monitoring')                 ################# Monitering
     item_monitor.connect('activate', monitoring)
     menu.append(item_monitor)
+    
+    item_cpu = gtk.MenuItem.new_with_label('CPU Profiles')                   ################# CPU profiles
+    item_cpu.set_submenu(cpu_submenu)
+    
+    cpu_powersaver = gtk.MenuItem.new_with_label('PowerSaver')
+    cpu_powersaver.connect('activate', powersaver)
+    cpu_submenu.append(cpu_powersaver)
+    
+    cpu_balanced = gtk.MenuItem.new_with_label('Balanced')
+    cpu_balanced.connect('activate', balanced)
+    cpu_submenu.append(cpu_balanced)
+    
+    cpu_performance = gtk.MenuItem.new_with_label('Performance')
+    cpu_performance.connect('activate', performance)
+    cpu_submenu.append(cpu_performance)
+    
+    cpu_manual = gtk.MenuItem.new_with_label('Manual')
+    cpu_manual.connect('activate', manual)
+    cpu_submenu.append(cpu_manual)
+    
+    menu.append(item_cpu)
 
-    item_battery_charge_threashold = gtk.MenuItem.new_with_label('Battery Charge Threashold')
+    item_battery_charge_threashold = gtk.MenuItem.new_with_label('Battery Charge Threashold')          ################# Battery Profiles
     item_battery_charge_threashold.set_submenu(battery_charge_threshold_submenu)
     
     mx_50 = gtk.MenuItem.new_with_label('50%')
@@ -232,9 +262,21 @@ def cooler_booster(source):
 def monitoring(source):
     os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}monitor.py >/dev/null 2>&1\"'")
     
-def ec_map(source):
-    os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"'")
+def powersaver(source):
+    f = 0
 
+def balanced(source):
+    f = 0
+
+def performance(source):
+    f = 0
+    
+def manual(source):
+    f = 0
+    
+def cpu(source):
+    f = 0
+    
 def battery_charge_threashold_50(osurce):
     all_lines = reading()
     lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "50" + "\n" + all_lines[4] + "\n" + all_lines[5]
@@ -264,6 +306,9 @@ def battery_charge_threashold_100(osurce):
     all_lines = reading()
     lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "100" + "\n" + all_lines[4] + "\n" + all_lines[5]
     corrections(lines)
+    
+def ec_map(source):
+    os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"'")
 
 def quit(source):
     gtk.main_quit()

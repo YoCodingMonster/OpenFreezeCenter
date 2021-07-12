@@ -1,9 +1,3 @@
-# Special thanks to Debian Installer Developer for application -> @Special-Niewbie
-
-# CURRENTLY NOT ACTIVELY DEVELOPED! DUE TO MY LAPTOP WHICH WENT KABOOM DUE TO HIGH VOLTAGE FLUCTUATIONS. BUT WILL BE CONTINUED ONCE MY LAPTOP IS REPAIRED!
-
-# ALL ISSUES WILL BE SOLVED WITHOUT DELAY, COZ I STILL HAVE A SYSTEM TO WORK ON BUT ITS NOT A LAPTOP.
-
 # Brand New UI. Now work as App Indicator
 # SCREENSHOTS
 ## Main Application
@@ -44,17 +38,13 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Open terminal inside the extracted folder and run ```./at_startup.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
-- If above methods doesn't work for you follow this link -> @IvanoiuAlexandruPaul -> https://github.com/YoCodingMonster/OpenFreezeCenter/issues/30#issue-925568804
 
 # For any issue and query comment!
 
 # Working on models
 - MSI GE66
-- MSI GS66
 - MSI GS65
-- MSI GS63VR
 - MSI GF63
-- MSI GL65
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Working on Linux distro
@@ -66,7 +56,6 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # Goals
 ```
   - Basic GUI                                          Done
-  - UI Scaling                                         Done
   - Fan Control with GUI                               Done
   - Auto, Basic, Advanced, Cooler Booster              Done
   - Basic temperature and RPM monitoring               Done
@@ -75,7 +64,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Configuration file                                 Done
   - Back version support                               Done
   - Making Pre-required installs automatic             Done
-  - Integrating it as an app indicator           	     Done
+  - Integrating it as an app indicator           	 Done
   - EC Map View                                        Done
   - Graph to monitor Temps and speeds                  In beta Testing
   - Dual GPU support                                   In beta Testing
