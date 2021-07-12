@@ -31,7 +31,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
-# .DEB package comming soon, till then delete previous versions of the application by deleting the directory and replacing it with the new release you download. Reinstall is not required and will be only done the first time automatically! thanks to @Special-Niewbie
+# .DEB package comming soon, till then delete previous versions of the application by deleting the directory and replacing it with the new release you download. Reinstall is not required and will be only done the first time automatically! thanks to # @Special-Niewbie
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
