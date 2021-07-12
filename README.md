@@ -31,13 +31,16 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
-# DELETE THE PREVIOUS FOLDER AND WORK WITH ONE YOU DOWNLOAD FROM LATEST RELEASE
+# .DEB package comming soon, till then delete previous versions of the application by deleting the directory and replacing it with the new release you download. Reinstall is not required and will be only done the first time automatically!
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
 - Open terminal inside the extracted folder and run ```./at_startup.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
+
+# How To Run GUI app?
+- Open terminal inside the extracted folder and run ```./at_startup.sh```
 
 # For any issue and query comment!
 
@@ -64,8 +67,9 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Configuration file                                 Done
   - Back version support                               Done
   - Making Pre-required installs automatic             Done
-  - Integrating it as an app indicator           	 Done
+  - Integrating it as an app indicator           	     Done
   - EC Map View                                        Done
+  - Debian Package                                     In Beta Testing -> thanks to @Special-Niewbie
   - Graph to monitor Temps and speeds                  In beta Testing
   - Dual GPU support                                   In beta Testing
   - 
