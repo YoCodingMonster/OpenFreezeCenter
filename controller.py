@@ -61,10 +61,33 @@ def read_EC():
 
         file.close()
     except:
-        print("Error reading EC")
+        print("Error reading EC 1")
 
     return vr
 
+def change_battery_threshold(threshold):
+    """Sets the battery charging threshold
+
+    Args:
+        threshold (int): The charging threshold between 20 and 100;
+    """
+
+    if threshold >= 20 and threshold <= 100:
+
+        threshold = threshold + 128
+
+        try:
+            with open(EC_IO_FILE, "w+b") as file:
+
+                file.seek(0xEF)
+                file.write(bytes((threshold,)))
+
+            file.close()
+        except:
+            print("Error reading EC 2")
+
+    else:
+        raise ValueError('The charging threshold should be between 20 and 100')
 
 def write_EC(v):
     MIN_VR_LENGTH = 14
@@ -122,7 +145,7 @@ def write_EC(v):
 
         file.close()
     except:
-        print("Error reading EC")
+        print("Error reading EC 2")
 
     return
 
@@ -177,7 +200,16 @@ def enable_mode(mode=MODE_AUTO, vr=DEFAULT_VR_AUTO, offset=DEFAULT_OFFSET):
 
 
 def get_stats():
-    stats = dict()
+
+    stats = {
+        "CPU_RPM": 0,
+        "GPU_RPM": 0,
+        "CPU_TEMP": 0,
+        "GPU_TEMP": 0,
+        "COOLER_BOOST_STATUS" : "OFF",
+        "BATTERY_THRESHOLD" : 0,
+    }
+
     try:
         with open(EC_IO_FILE, "r+b") as file:
             file.seek(0x68)
@@ -193,21 +225,26 @@ def get_stats():
             if gpu_fan != 0:
                 gpu_fan = 478000 // gpu_fan
 
-            stats = {
-                "CPU_RPM": cpu_fan,
-                "GPU_RPM": gpu_fan,
-                "CPU_TEMP": cpu_cur_temp,
-                "GPU_TEMP": gpu_cur_temp,
-            }
+            file.seek(0x98)
+            cooler_boost_state = int(file.read(1).hex(), 16)
+            if cooler_boost_state == 128:
+                stats["COOLER_BOOST_STATUS"] = "ON"
+
+            file.seek(0xEF)
+            battery_threshold = int(file.read(1).hex(), 16)
+            if battery_threshold != 0:
+                battery_threshold = battery_threshold - 128
+
+            stats["CPU_RPM"] = cpu_fan
+            stats["GPU_RPM"] = gpu_fan
+            stats["CPU_TEMP"] = cpu_cur_temp
+            stats["GPU_TEMP"] = gpu_cur_temp
+            stats["BATTERY_THRESHOLD"] = battery_threshold
+
         file.close()
 
     except:
-        print("Error reading EC")
-        stats = {
-            "CPU_RPM": 0,
-            "GPU_RPM": 0,
-            "CPU_TEMP": 0,
-            "GPU_TEMP": 0,
-        }
+        print("Error reading EC 3")
 
     return stats
+

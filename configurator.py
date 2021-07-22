@@ -6,8 +6,10 @@ import toml
 import os
 import sys
 
-CONFIG_PATH = os.path.expanduser("~") + "/.config/OpenFreezeCenter"
+# CONFIG_PATH = os.path.expanduser("~") + "/.config/OpenFreezeCenter"
+CONFIG_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = "config.toml"
+
 
 
 def write_default_config():
@@ -41,7 +43,6 @@ def write_default_config():
     ]
 
     config["ui"]["dark_mode_enabled"] = False
-    config["ui"]["update_freq"] = 10
 
     # Not sure what this is but it was in the first config file on line 2
     config["settings"]["four"] = 4

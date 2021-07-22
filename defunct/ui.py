@@ -9,14 +9,20 @@ from pandas._config import config
 from ttkthemes import ThemedStyle
 from tkinter import messagebox
 
+from concurrent import futures
+import time
+
 import os
 import sys
+import traceback
 import datetime
 import pandas as pd
 
 import configurator
 import controller
 import driver
+
+thread_pool_executor = futures.ThreadPoolExecutor(max_workers=1)
 
 CURRENT_VERSION = "0.1.5"
 
@@ -30,11 +36,13 @@ MODE_COOLERBOOST = 3
 DARK_THEME = "black"
 LIGHT_THEME = "scidgrey"
 
-
 class AppUI:
     def __init__(self, root):
 
         self.root = root
+
+        ## window close handler
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Get config
         self.config = configurator.get_config()
@@ -43,7 +51,7 @@ class AppUI:
         self.df_stats = pd.DataFrame()
 
         # setting window params
-        self.root.title("OpenFreezeCenter")
+        self.root.title("Open Freeze Center")
         self.width = 370 * 2
         self.height = 270 * 2
         screenwidth = self.root.winfo_screenwidth()
@@ -60,6 +68,7 @@ class AppUI:
         # Asign theme
         self.style = ThemedStyle(self.root)
         self.ft = font.Font(family="Helvetica", size=12)
+        self.ft_big_bold = font.Font(family="Helvetica", size=20, weight=tk.font.BOLD)
 
         # Tabbed ui
         self.tab_parent = ttk.Notebook(self.root)
@@ -84,18 +93,15 @@ class AppUI:
 
         # Update ui elements
         self.update_ui()
-        self.update_stats()
+        # self.update_stats()
 
         # Continously update the ui.
-        # This function runs every x seconds as per the config file
         self.updater()
 
     def updater(self):
-
-        self.update_stats()
-
-        # Update this every x seconds
-        self.root.after(self.config["ui"]["update_freq"] * 1000, self.updater)
+        thread_pool_executor.submit(self.update_stats)
+        # # # Update this every x seconds
+        # self.root.after(self.config["ui"]["update_freq"] * 1000, self.updater)
 
     def update_ui(self):
 
@@ -128,7 +134,8 @@ class AppUI:
         elif self.config["settings"]["mode"] == MODE_COOLERBOOST:
             self.button_boost["fg"] = "red"
 
-    def update_stats(self):
+    # This function runs every x seconds as per the config file
+    def update_stats(self): ## blocking code
         stats = controller.get_stats()
 
         # Log stats to pandas
@@ -150,6 +157,11 @@ class AppUI:
         self.msg_cpu_rpm_max["text"] = self.df_stats["CPU_RPM"].max()
         self.msg_gpu_rpm_max["text"] = self.df_stats["GPU_RPM"].max()
 
+        self.msg_cooler_boost_status["text"] = stats["COOLER_BOOST_STATUS"]
+
+        self.msg_battery_charge_threshold["text"] = stats["BATTERY_THRESHOLD"]
+
+        self.updater()
     #######################################
     ### UI Setup Design                ####
     #######################################
@@ -197,6 +209,7 @@ class AppUI:
         self.msg_cpu_rpm = tk.Message(self.tab_monitor)
         self.msg_cpu_rpm["font"] = self.ft
         self.msg_cpu_rpm["text"] = "NA"
+        self.msg_cpu_rpm.config(width=150)
 
         self.msg_gpu_rpm = tk.Message(self.tab_monitor)
         self.msg_gpu_rpm["font"] = self.ft
@@ -236,33 +249,57 @@ class AppUI:
         self.msg_gpu_rpm_max["font"] = self.ft
         self.msg_gpu_rpm_max["text"] = "NA"
 
+        self.label_cooler_boost_status = tk.Label(self.tab_monitor)
+        self.label_cooler_boost_status["font"] = self.ft_big_bold
+        self.label_cooler_boost_status["text"] = "Cooler Boost Status :"
+
+        self.msg_cooler_boost_status = tk.Message(self.tab_monitor)
+        self.msg_cooler_boost_status["font"] = self.ft_big_bold
+        self.msg_cooler_boost_status["text"] = "NA"
+
+        self.label_battery_charge_threshold = tk.Label(self.tab_monitor)
+        self.label_battery_charge_threshold["font"] = self.ft_big_bold
+        self.label_battery_charge_threshold["text"] = "Battery Charge Threshold :"
+
+        self.msg_battery_charge_threshold = tk.Message(self.tab_monitor)
+        self.msg_battery_charge_threshold["font"] = self.ft_big_bold
+        self.msg_battery_charge_threshold["text"] = "NA"
+
         # Position elements
-        self.label_cpu_temp.place(y=30, x=0, width=120, height=30)
-        self.label_gpu_temp.place(y=60, x=0, width=120, height=30)
-        self.label_cpu_rpm.place(y=90, x=0, width=120, height=30)
-        self.label_gpu_rpm.place(y=120, x=0, width=120, height=30)
+        self.label_cur.place(y=0, x=160, width=160, height=50)
+        self.label_min.place(y=0, x=320, width=160, height=50)
+        self.label_max.place(y=0, x=480, width=160, height=50)
 
-        self.label_cur.place(y=0, x=120, width=60, height=30)
-        self.label_min.place(y=0, x=180, width=60, height=30)
-        self.label_max.place(y=0, x=240, width=60, height=30)
+        self.label_cpu_temp.place(y=50, x=10, width=150, height=50)
+        self.label_gpu_temp.place(y=100, x=10, width=150, height=50)
+        self.label_cpu_rpm.place(y=150, x=10, width=150, height=35)
+        self.label_gpu_rpm.place(y=200, x=10, width=150, height=50)
 
-        self.msg_cpu_temp.place(y=30, x=120, width=60, height=30)
-        self.msg_gpu_temp.place(y=60, x=120, width=60, height=30)
-        self.msg_cpu_rpm.place(y=90, x=120, width=60, height=30)
-        self.msg_gpu_rpm.place(y=120, x=120, width=60, height=30)
+        self.msg_cpu_temp.place(y=50, x=160, width=160, height=30)
+        self.msg_gpu_temp.place(y=100, x=160, width=160, height=30)
+        self.msg_cpu_rpm.place(y=150, x=160, width=160, height=30)
+        self.msg_gpu_rpm.place(y=200, x=160, width=160, height=30)
 
-        self.msg_cpu_temp_min.place(y=30, x=180, width=60, height=30)
-        self.msg_gpu_temp_min.place(y=60, x=180, width=60, height=30)
-        self.msg_cpu_rpm_min.place(y=90, x=180, width=60, height=30)
-        self.msg_gpu_rpm_min.place(y=120, x=180, width=60, height=30)
+        self.msg_cpu_temp_min.place(y=50, x=320, width=160, height=30)
+        self.msg_gpu_temp_min.place(y=100, x=320, width=160, height=30)
+        self.msg_cpu_rpm_min.place(y=150, x=320, width=160, height=30)
+        self.msg_gpu_rpm_min.place(y=200, x=320, width=160, height=30)
 
-        self.msg_cpu_temp_max.place(y=30, x=240, width=60, height=30)
-        self.msg_gpu_temp_max.place(y=60, x=240, width=60, height=30)
-        self.msg_cpu_rpm_max.place(y=90, x=240, width=60, height=30)
-        self.msg_gpu_rpm_max.place(y=120, x=240, width=60, height=30)
+        self.msg_cpu_temp_max.place(y=50, x=480, width=160, height=30)
+        self.msg_gpu_temp_max.place(y=100, x=480, width=160, height=30)
+        self.msg_cpu_rpm_max.place(y=150, x=480, width=160, height=30)
+        self.msg_gpu_rpm_max.place(y=200, x=480, width=160, height=30)
+
+        self.label_cooler_boost_status.place(y=260, x=10, width=300, height=60)
+
+        self.msg_cooler_boost_status.place(y=260, x=310, width=50, height=60)
+
+        self.label_battery_charge_threshold.place(y=340, x=10, width=350, height=60)
+
+        self.msg_battery_charge_threshold.place(y=340, x=360, width=50, height=60)
 
         # Add values into ui
-        self.update_stats()
+        # self.update_stats()
 
     def setup_overview(self):
 
@@ -315,7 +352,7 @@ class AppUI:
         self.label1["justify"] = "center"
         self.label1[
             "text"
-        ] = "Creator(s) :-> Aditya Kumar Bajpai\nRob Oudendijk\nLiam Lalonde"
+        ] = "Creator(s) :-> Aditya Kumar Bajpai\nRob Oudendijk\nLiam Lalonde\nSangram Singha"
 
         self.label2 = tk.Label(self.tab_about)
         self.label2["font"] = self.ft
@@ -419,12 +456,24 @@ class AppUI:
 
         controller.enable_mode(mode, vr, offset)
 
+    def on_closing(self):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.root.destroy()
+
+def format_stacktrace():
+    parts = ["Traceback (most recent call last):\n"]
+    parts.extend(traceback.format_stack(limit=25)[:-2])
+    parts.extend(traceback.format_exception(*sys.exc_info())[1:])
+    return "".join(parts)
 
 def open_ui():
-    root = tk.Tk()
-    app = AppUI(root)
-    root.mainloop()
-
+    try:
+        root = tk.Tk()
+        app = AppUI(root)
+        root.mainloop()
+    except Exception as e:
+        stacktrace = format_stacktrace()
+        print(stacktrace)
 
 if __name__ == "__main__":
     open_ui()
