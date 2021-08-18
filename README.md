@@ -48,12 +48,14 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - MSI GE66
 - MSI GS65
 - MSI GF63
+- MSI GS66 STEALTH
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Working on Linux distro
 - Ubuntu
 - Mint
 - Kubuntu
+- Garuda / Arch (Needs a bit of tweaking, go this link for the preconfigured file: https://github.com/YoCodingMonster/OpenFreezeCenter/issues/37)
 - HELP ME ADD MORE DISTROS. TEST AND REPORT ME
 
 # Goals
