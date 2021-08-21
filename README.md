@@ -35,7 +35,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
-- Open terminal inside the extracted folder and run ```./at_startup.sh```
+- Open terminal inside the extracted folder and run ```./install_deps.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
 
