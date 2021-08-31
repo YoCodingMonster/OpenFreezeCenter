@@ -48,6 +48,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - MSI GE66
 - MSI GS65
 - MSI GF63
+- MSI GP76 (11TH Gen Intel)
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Working on Linux distro
