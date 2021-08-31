@@ -42,17 +42,21 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # How To Run GUI app?
 - Open terminal inside the extracted folder and run ```./at_startup.sh```
 
-# For any issue and query comment!
+# For any issue follow the guideline below
+- Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG].
+- Write the problem with some description.
+- Attach relevant screenshots.
 
 # Working on models
 - MSI GE66
 - MSI GS65
 - MSI GF63
-- MSI GP76 (11TH Gen Intel)
+- MSI GP76 (11th Gen Intel)
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Working on Linux distro
 - Ubuntu
+- Pop OS
 - Mint
 - Kubuntu
 - HELP ME ADD MORE DISTROS. TEST AND REPORT ME
