@@ -21,7 +21,7 @@ temp_g_m = 100
 temp_m = 0
 
 window_m = Tk()
-window_m.title('Monitering')
+window_m.title('Monitoring')
 dpi_base = 76
 dpi = window_m.winfo_fpixels('1i')
 dpi_scale = round(dpi/dpi_base)
