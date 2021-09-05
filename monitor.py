@@ -11,6 +11,8 @@ my_filename = os.path.join(path_to_script, "conf.txt")
 
 conf_file_a = open(my_filename, "r")
 mode = int(conf_file_a.read(1))
+all_lines = conf_file_a.readlines()
+flip_board = int(all_lines[6])
 conf_file_a.close()
 
 monitoring = 0
@@ -29,11 +31,11 @@ window_m.geometry(f'{dpi_scale * 320}x{dpi_scale * 110}')
 canvas = Canvas(window_m)
 canvas.configure(bg = 'black')
 
-def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55):
+def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55, lable_m444, lable_m555):
 	global monitoring
 	monitoring = 1
 	global timer
-	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55))
+	timer = threading.Timer(1, monitoring_int, args = (lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55, lable_m444, lable_m555))
 	timer.start()
 	global temp_m
 	temp_m = mode
@@ -46,7 +48,14 @@ def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_
 		cpu_cur_temp = (int(file.read(1).hex(),16))
 		file.seek(0x80)
 		gpu_cur_temp = (int(file.read(1).hex(),16))
-		file.seek(0xcc)
+		file.seek(0x71)
+		cpu_fan_s = (int(file.read(1).hex(),16))
+		file.seek(0x89)
+		gpu_fan_s = (int(file.read(1).hex(),16))
+		if flip_board == 0:
+			file.seek(0xca)
+		else:
+			file.seek(0xc8)
 		cpu_fan = (int(file.read(2).hex(),16))
 		if cpu_fan != 0:
 			cpu_fan = 478000//cpu_fan
@@ -70,6 +79,8 @@ def monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_
 		color(gpu_cur_temp, lable_g11)
 		lable_m44.config(text = cpu_fan)
 		lable_m55.config(text = gpu_fan)
+		lable_m444.config(text = str(cpu_fan_s) + "%")
+		lable_m555.config(text = str(gpu_fan_s) + "%")
 	return
 	
 def color(temp, lable):
@@ -114,13 +125,17 @@ lable_m4 = Label(window_m, text = "CPU fan RPM : ", fg = 'white', bg = 'black', 
 lable_m4.place(x = dpi_scale * 10, y = dpi_scale * 67)
 lable_m44 = Label(window_m, text = "", fg = 'white', bg = 'black', font=("Helvetica", 11))
 lable_m44.place(x = dpi_scale * 190, y = dpi_scale * 67)
+lable_m444 = Label(window_m, text = "", fg = 'white', bg = 'black', font=("Helvetica", 11))
+lable_m444.place(x = dpi_scale * 250, y = dpi_scale * 67)
 
 lable_m5 = Label(window_m, text = "GPU fan RPM : ", fg = 'white', bg = 'black', font=("Helvetica", 10))
 lable_m5.place(x = dpi_scale * 10, y = dpi_scale * 87)
 lable_m55 = Label(window_m, text = "", fg = 'white', bg = 'black', font=("Helvetica", 11))
 lable_m55.place(x = dpi_scale * 190, y = dpi_scale * 87)
+lable_m555 = Label(window_m, text = "", fg = 'white', bg = 'black', font=("Helvetica", 11))
+lable_m555.place(x = dpi_scale * 250, y = dpi_scale * 87)
 
-monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55)
+monitoring_int(lable_c11, lable_c22, lable_c33, lable_g11, lable_g22, lable_g33, lable_m44, lable_m55, lable_m444, lable_m555)
 
 def on_closing():
 	timer.cancel()

@@ -34,6 +34,7 @@ if check_1 == False:
     conf_file.write("12,")
     for val in temp_:
         conf_file.write("%i," % val)
+    conf_file.write("\n0")
     conf_file.close()
     os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}read_temp_set.py >/dev/null 2>&1\"'")
     
@@ -64,7 +65,7 @@ def corrections(lines):
     return
     
 all_lines = reading()
-lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
 corrections(lines)
 
 def main():
@@ -78,6 +79,7 @@ def build_menu():
     basic_submenu = gtk.Menu()
     cpu_submenu = gtk.Menu()
     battery_charge_threshold_submenu = gtk.Menu()
+    flip_board_submenu = gtk.Menu()
     backlight_submenu = gtk.Menu()
 
     item_github = gtk.MenuItem.new_with_label('Visit Project')
@@ -196,6 +198,19 @@ def build_menu():
     item_ec.connect('activate', ec_map)
     menu.append(item_ec)
 
+    item_flip_board = gtk.MenuItem.new_with_label('Intel 11th Gen')                       ################# CPU fan monitor choose "ca" and "c8"
+    item_flip_board.set_submenu(flip_board_submenu)
+    
+    item_flip_board_1 = gtk.MenuItem.new_with_label('On')
+    item_flip_board_1.connect('activate', flip_board_1)
+    flip_board_submenu.append(item_flip_board_1)
+
+    item_flip_board_2 = gtk.MenuItem.new_with_label('Off')
+    item_flip_board_2.connect('activate', flip_board_2)
+    flip_board_submenu.append(item_flip_board_2)
+
+    menu.append(item_flip_board)
+
     Separator = gtk.SeparatorMenuItem()                                      ################################# Quit
     menu.append(Separator)
 
@@ -211,42 +226,42 @@ def github(source):
 
 def auto(source):
     all_lines = reading()
-    lines = str(1) + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(1) + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def slowest(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "-30" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "-30" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def slower(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "-20" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "-20" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def slow(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "-10" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "-10" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def normal(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "0" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "0" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def fast(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "10" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "10" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def faster(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "20" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "20" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def fastest(source):
     all_lines = reading()
-    lines = str(2) + "\n" + "30" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(2) + "\n" + "30" + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def advanced(source):
@@ -255,7 +270,7 @@ def advanced(source):
 
 def cooler_booster(source):
     all_lines = reading()
-    lines = str(4) + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = str(4) + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
 def monitoring(source):
@@ -276,38 +291,48 @@ def manual(source):
 def cpu(source):
     f = 0
     
-def battery_charge_threashold_50(osurce):
+def battery_charge_threashold_50(source):
     all_lines = reading()
-    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "50" + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "50" + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
-def battery_charge_threashold_60(osurce):
+def battery_charge_threashold_60(source):
     all_lines = reading()
-    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "60" + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "60" + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
-def battery_charge_threashold_70(osurce):
+def battery_charge_threashold_70(source):
     all_lines = reading()
-    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "70" + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "70" + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
-def battery_charge_threashold_80(osurce):
+def battery_charge_threashold_80(source):
     all_lines = reading()
-    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "80" + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "80" + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
-def battery_charge_threashold_90(osurce):
+def battery_charge_threashold_90(source):
     all_lines = reading()
-    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "90" + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "90" + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
 
-def battery_charge_threashold_100(osurce):
+def battery_charge_threashold_100(source):
     all_lines = reading()
-    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "100" + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + "100" + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
     
 def ec_map(source):
     os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"'")
+    
+def flip_board_1(source):
+    all_lines = reading()
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + str(1)
+    corrections(lines)
+    
+def flip_board_2(source):
+    all_lines = reading()
+    lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + str(0)
+    corrections(lines)
 
 def quit(source):
     gtk.main_quit()

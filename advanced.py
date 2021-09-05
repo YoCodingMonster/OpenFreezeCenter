@@ -190,7 +190,7 @@ def adv_apply():
     lines = str(3) + "\n" + all_lines[1] + "\n"
     for val in vr:
         lines = lines + str(val) + ","
-    lines = lines + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5]
+    lines = lines + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
     corrections(lines)
     return
 

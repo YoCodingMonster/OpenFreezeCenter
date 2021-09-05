@@ -13,6 +13,8 @@ conf_file.close()
 lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n"
 
 with open(EC_IO_FILE,'r+b') as file:
+    file.seek(0xf4)
+    file.write(bytes((12,)))
     file.seek(0x6a)
     lines = lines + str(int(file.read(1).hex(),16)) + ","
     file.seek(0x6b)
@@ -76,4 +78,5 @@ for line in fileinput.FileInput(my_filename, inplace=1):
         str_1 = str_1 + line
 conf_file = open(my_filename, "w")
 conf_file.writelines(str_1)
+conf_file.write("\n" + all_lines[6])
 conf_file.close()
