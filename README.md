@@ -80,4 +80,4 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - 
 ```
 # Known Bugs :- 1
-- If you are not able to see the Speed of CPU fan but the percentage is showing perfectely fine, then do enable the ```Intel 11Th gen``` and report me and tell the generation of your processor!!
+- If you are not able to see the Speed of CPU fan but the percentage is showing perfectely fine, then do enable the ```Intel 11Th gen``` and report me and tell the generation of your processor!!. The 11th gen tag is alone write now, 10th gen please do check and confirm!!
