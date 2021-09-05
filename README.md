@@ -79,4 +79,5 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Dual GPU support                                   In beta Testing
   - 
 ```
-# Known Bugs :- 0
+# Known Bugs :- 1
+- If you are not able to see the Speed of CPU fan but the percentage is showing perfectely fine, then do enable the ```Intel 11Th gen``` and report me and tell the generation of your processor!!
