@@ -1,3 +1,3 @@
 #!/bin/sh
-
-python3 indicator.py >/dev/null 2>&1 & exit
+BASEDIR=$(dirname $0)
+python3 ${BASEDIR}/indicator.py >/dev/null 2>&1 & exit
