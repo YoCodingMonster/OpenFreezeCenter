@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/python3
 
 import signal
 import os
@@ -16,8 +16,8 @@ my_filename = os.path.join(path_to_script, "conf.txt")
 check_1 = os.path.exists(my_filename)
 
 if check_1 == False:
-    os.system("x-terminal-emulator -e 'bash -c \"./root_permissions.sh\"'")
-    os.system("x-terminal-emulator -e 'bash -c \"sudo ./install_deps.sh\"'")
+    os.system("bash -c \"./root_permissions.sh\"")
+    os.system("bash -c \"sudo ./install_deps.sh\"")
     open(my_filename, "w").close()
     subprocess.call(['chmod', '0777', my_filename])
     conf_file = open(my_filename, "w")
@@ -36,7 +36,7 @@ if check_1 == False:
         conf_file.write("%i," % val)
     conf_file.write("\n0")
     conf_file.close()
-    os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}read_temp_set.py >/dev/null 2>&1\"'")
+    os.system("bash -c \"sudo nohup python3 ${pkgdir}read_temp_set.py >/dev/null 2>&1\"")
     
 import gi.repository
 gi.require_version('Gtk', '3.0')
@@ -61,7 +61,7 @@ def corrections(lines):
     conf_file = open(my_filename, "w")
     conf_file.writelines(str_1)
     conf_file.close()
-    os.system("x-terminal-emulator -e 'bash -c \"sudo python3 ${pkgdir}write_EC.py\"'")
+    os.system("bash -c \"sudo python3 ${pkgdir}write_EC.py\"")
     return
     
 all_lines = reading()
@@ -274,7 +274,7 @@ def cooler_booster(source):
     corrections(lines)
 
 def monitoring(source):
-    os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}monitor.py >/dev/null 2>&1\"'")
+    os.system("bash -c \"sudo nohup python3 ${pkgdir}monitor.py >/dev/null 2>&1\"")
     
 def powersaver(source):
     f = 0
@@ -322,7 +322,7 @@ def battery_charge_threashold_100(source):
     corrections(lines)
     
 def ec_map(source):
-    os.system("x-terminal-emulator -e 'bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"'")
+    os.system("bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"")
     
 def flip_board_1(source):
     all_lines = reading()
