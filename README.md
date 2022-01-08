@@ -1,3 +1,5 @@
+# Next version release on jan 20th at 12:00PM should resolve most of the issues!!
+
 # ```Working on MSI Center software and making laptops with this software respond to calls from same script!!```
 
 # Brand New UI. Now work as App Indicator
