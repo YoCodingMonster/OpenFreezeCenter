@@ -27,9 +27,9 @@
 
 - This project will be weekly Updated!
 - For more features do comment and share your views!
-- Well if you like my work, Do follow me for more awesome projects!!
+- Well if you like my work, do follow me for more awesome projects!!
 
-For Those running Linux Distro on MSI laptops. This is the Graphic User Interface application meant for Fan control and monitoring in Linux.
+For those running a Linux distro on MSI laptops. This is the Graphic User Interface application meant for fan control and monitoring in Linux.
 - This Application can run on any Linux distro!!
 - Installation is very easy with one command solution!!
 
