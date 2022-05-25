@@ -25,7 +25,7 @@ def corrections(lines):
     conf_file = open(my_filename, "w")
     conf_file.writelines(str_1)
     conf_file.close()
-    os.system("x-terminal-emulator -e 'bash -c \"sudo python3 ${pkgdir}write_EC.py\"'")
+    os.system("konsole -e 'bash -c \"sudo python3 ${pkgdir}write_EC.py\"'")
     return
 
 window = Tk()
