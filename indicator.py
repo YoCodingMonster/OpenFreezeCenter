@@ -8,19 +8,18 @@ import fileinput
 
 #################################################################################################### Indicator Making
 
-APPINDICATOR_ID = 'myappindicator'
-iconpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon_22.png")
+APPINDICATOR_ID = 'openfreezecenter'
+iconpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openfreezecenter.png")
 
 path_to_script = os.path.dirname(os.path.abspath(__file__))
-my_filename = os.path.join(path_to_script, "conf.txt")
-check_1 = os.path.exists(my_filename)
+config_path = os.path.join(path_to_script, "conf.txt")
+is_installed = os.path.exists(config_path)
 
-if check_1 == False:
-    os.system("konsole -e 'bash -c \"./root_permissions.sh\"'")
-    os.system("konsole -e 'bash -c \"sudo ./install_deps.sh\"'")
-    open(my_filename, "w").close()
-    subprocess.call(['chmod', '0777', my_filename])
-    conf_file = open(my_filename, "w")
+if not is_installed:
+    print("Oops! Looks like we haven't ran before! Make sure dependencies are installed if you see any errors!")
+    open(config_path, "w").close()
+    subprocess.call(['chmod', '0777', config_path])
+    conf_file = open(config_path, "w")
     conf_file.writelines("1\n0\n")
     temp_ = [140,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
     for val in temp_:
@@ -36,7 +35,7 @@ if check_1 == False:
         conf_file.write("%i," % val)
     conf_file.write("\n0")
     conf_file.close()
-    os.system("konsole -e 'bash -c \"sudo nohup python3 ${pkgdir}read_temp_set.py >/dev/null 2>&1\"'")
+    os.system("python3 read_temp_set.py")
     
 import gi.repository
 gi.require_version('Gtk', '3.0')
@@ -45,24 +44,23 @@ from gi.repository  import Gtk as gtk
 from gi.repository import AppIndicator3 as appindicator
 
 def reading():
-    conf_file = open(my_filename, "r")
+    conf_file = open(config_path, "r")
     all_lines = conf_file.readlines()
     conf_file.close()
     return all_lines
 
 def corrections(lines):
-    conf_file = open(my_filename, "w")
+    conf_file = open(config_path, "w")
     conf_file.writelines(lines)
     conf_file.close()
     str_1 = ''
-    for line in fileinput.FileInput(my_filename, inplace=1):
+    for line in fileinput.FileInput(config_path, inplace=1):
         if line.rstrip():
             str_1 = str_1 + line
-    conf_file = open(my_filename, "w")
+    conf_file = open(config_path, "w")
     conf_file.writelines(str_1)
     conf_file.close()
-    os.system("konsole -e 'bash -c \"sudo python3 ${pkgdir}write_EC.py\"'")
-    return
+    os.system("python3 write_EC.py")
     
 all_lines = reading()
 lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
@@ -274,7 +272,7 @@ def cooler_booster(source):
     corrections(lines)
 
 def monitoring(source):
-    os.system("konsole -e 'bash -c \"sudo nohup python3 ${pkgdir}monitor.py >/dev/null 2>&1\"'")
+    os.system("python3 monitor.py")
     
 def powersaver(source):
     f = 0
@@ -322,7 +320,7 @@ def battery_charge_threashold_100(source):
     corrections(lines)
     
 def ec_map(source):
-    os.system("konsole -e 'bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"'")
+    os.system("python3 ec_dump.py")
     
 def flip_board_1(source):
     all_lines = reading()
