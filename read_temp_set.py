@@ -3,6 +3,12 @@
 import os
 import fileinput
 
+
+
+def read_range(file, range):
+    file.seek(range.start)
+    return ",".join('{:02X}'.format(x) for x in file.read(range.__len__()+1))
+
 EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
 path_to_script = os.path.dirname(os.path.abspath(__file__))
 my_filename = os.path.join(path_to_script, "conf.txt")
@@ -14,60 +20,11 @@ lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_li
 
 with open(EC_IO_FILE,'r+b') as file:
     file.seek(0xf4)
-    file.write(bytes((12,)))
-    file.seek(0x6a)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x6b)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x6c)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x6d)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x6e)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x6f)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x82)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x83)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x84)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x85)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x86)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x87)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    lines = lines + "\n12,"
-    file.seek(0x72)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x73)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x74)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x75)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x76)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x77)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x78)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x8a)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x8b)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x8c)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x8d)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x8e)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x8f)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
-    file.seek(0x90)
-    lines = lines + str(int(file.read(1).hex(),16)) + ","
+    file.write(bytes(12))
+    lines += read_range(file, range(0x6a, 0x6f)) + ","
+    lines += read_range(file, range(0x82, 0x87)) + ",\n12,"
+    lines += read_range(file, range(0x72, 0x78)) + ","
+    lines += read_range(file, range(0x8a, 0x90)) + ","
  
 conf_file = open(my_filename, "w")
 conf_file.writelines(lines)

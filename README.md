@@ -1,87 +1,83 @@
-# Next version release on jan 20th at 12:00PM should resolve most of the issues!!
+# OpenFreezeCenter
+###### *MSI Dragon Center for Linux*
+##### Notice: Next version is planned for the 20th of January. It should resolve most of the issues.
+---
+## Features
+- Lives in system tray
+- Allows setting static fan speed
+- Allows setting fan curves
+- Allows setting battery charge limit
 
-# ```Working on MSI Center software and making laptops with this software respond to calls from same script!!```
+---
+## Screenshots
+#### Main application
+![Screenshot of main application](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-03.png)
 
-# Brand New UI. Now work as App Indicator
-# SCREENSHOTS
-## Main Application
-![Screenshot from 2021-06-10 04-16-03.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-03.png)
+#### Expanded basic nenu
+![Basic menu](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-07.png)
 
-## Expanded Basic Menu
-![Screenshot from 2021-06-10 04-16-07.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-07.png)
+#### Expanded battery nenu
+![Battery menu](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-10.png)
 
-## Expanded Battery Menu
-![Screenshot from 2021-06-10 04-16-10.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-10.png)
+#### Advanced fan curve window
+![Advanced fan curve control](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/f1905b95af32f66c629c22eb68a1ce6130c9164f/Screenshot%20from%202021-06-10%2004-44-41.png)
 
-## Advanced Fan curve Window
-![Screenshot from 2021-06-10 04-44-41.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/f1905b95af32f66c629c22eb68a1ce6130c9164f/Screenshot%20from%202021-06-10%2004-44-41.png)
+#### Monitoring window
+![Monitoring](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-24.png)
 
-## Monitoring Window
-![Screenshot from 2021-06-10 04-16-24.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-24.png)
+#### EC map window
+![EC map display](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-36.png)
 
-## EC Map Window
-![Screenshot from 2021-06-10 04-16-36.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-36.png)
+---
+## Important notices
+- Disable secure boot because it interferes with the permission of the script to read/write to EC file.
+- Packages comming soon
+- Deleting `conf.txt` will delete your fan curves and other configuration data.
 
-# MSI Dragon Center for Linux
-# Official name :- OpenFreezeCenter
+## How to install?
+You can't install this application yet, see below!
 
-- This project will be weekly Updated!
-- For more features do comment and share your views!
-- Well if you like my work, Do follow me for more awesome projects!!
+## How to run?
+Open a terminal inside the extracted folder and run `sudo python3 indicator.py`
 
-For Those running Linux Distro on MSI laptops. This is the Graphic User Interface application meant for Fan control and monitoring in Linux.
-- This Application can run on any Linux distro!!
-- Installation is very easy with one command solution!!
+## Reporting bugs
+- Specify your system information
+  - Example: *MSI GF75 Thin 9SC, i7-9750h, GTX 1650*
+- Describe your issue
+- Attach relevant screenshots
 
-### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
-
-# .DEB package comming soon, till then delete previous versions of the application by deleting the directory and replacing it with the new release you download. Reinstall is not required and will be only done the first time automatically! thanks to # @Special-Niewbie
-
-# How To Install GUI app?
-- Download the .zip from the github and extract it wherever you want
-- Open terminal inside the extracted folder and run ```./at_startup.sh```
-- This will install all the dependencies which are missing and open the GUI app for the first time.
-- App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
-
-# How To Run GUI app?
-- Open terminal inside the extracted folder and run ```./at_startup.sh```
-
-# For any issue follow the guideline below
-- Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG].
-- Write the problem with some description.
-- Attach relevant screenshots.
-
-# Working on models
+## Known working models
 - MSI GE66
 - MSI GS65
 - MSI GF63
 - MSI GP76 (11th Gen Intel)
-- HELP ME ADD MORE MODELS. TEST AND REPORT ME
+- MSI GF75 Thin 9SC (partial: no fan control besides cooler boost, fan speed is wrong)
+- *If the application works on yours and isn't listed, let me know!*
 
-# Working on Linux distro
+## Known working distros
 - Ubuntu
 - Pop OS
 - Mint
 - Kubuntu
-- HELP ME ADD MORE DISTROS. TEST AND REPORT ME
+- *If the application works on yours and isn't listed, let me know!*
 
-# Goals
+## Goals
 ```
-  - Basic GUI                                          Done
-  - Fan Control with GUI                               Done
-  - Auto, Basic, Advanced, Cooler Booster              Done
-  - Basic temperature and RPM monitoring               Done
-  - One click install                                  Done
-  - Dark Mode                                          Done
-  - Configuration file                                 Done
-  - Back version support                               Done
-  - Making Pre-required installs automatic             Done
-  - Integrating it as an app indicator           	     Done
-  - EC Map View                                        Done
-  - Debian Package                                     In Beta Testing -> thanks to @Special-Niewbie
-  - Graph to monitor Temps and speeds                  In beta Testing
-  - Dual GPU support                                   In beta Testing
-  - 
+  - [x] Basic GUI
+  - [x] Fan Control with GUI
+  - [x] Auto, Basic, Advanced, Cooler Booster
+  - [x] Basic temperature and RPM monitoring
+  - [x] One click install
+  - [x] Dark mode
+  - [x] Configuration file
+  - [x] Back version support
+  - [x] Making pre-required installs automatic
+  - [x] Integrating it as an app indicator
+  - [x] EC Map View
+  - [ ] Graph to monitor Temps and speeds (In beta testing)
+  - [ ] Dual GPU support (in beta testing)
+  - [ ] Debian package (in beta testing, thanks @Special-Niewbie)
+  - [ ] AUR PKGBUILD (@TheArcaneBrony will do after refactor)
 ```
-# Known Bugs :- 1
-- If you are not able to see the Speed of CPU fan but the percentage is showing perfectely fine, then do enable the ```Intel 11Th gen``` and report me and tell the generation of your processor!!. The 11th gen tag is alone write now, 10th gen please do check and confirm!!
+## Known Bugs
+- If you're unable to see CPU fan speed, but the percentage is showing correctly, enable `Intel 11th gen` support in the menu and report back with your processor's generation!
