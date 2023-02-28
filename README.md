@@ -1,4 +1,4 @@
-# Next version release on jan 20th at 12:00PM should resolve most of the issues!!
+# Back on this Project from 1 March 2023!!
 
 # ```Working on MSI Center software and making laptops with this software respond to calls from same script!!```
 
