@@ -38,7 +38,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
 - Mark the file ```at_startup.sh``` as executable
-- Open terminal inside the extracted folder and run ```./at_startup.sh```
+- Open terminal inside the extracted folder and run ```sudo ./at_startup.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
   - If the GUI did not open follow the steps below
   - Disable the Secure Boot
@@ -51,12 +51,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
 
 # How To Run GUI app?
-- Open terminal inside the extracted folder and run ```./at_startup.sh```
-
-# For any issue follow the guideline below
-- Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG].
-- Write the problem with some description.
-- Attach relevant screenshots.
+- Open terminal inside the extracted folder and run ```sudo ./at_startup.sh```
 
 # Working on models
 - MSI GE66
@@ -72,6 +67,11 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Kubuntu
 - HELP ME ADD MORE DISTROS. TEST AND REPORT ME
 
+# For any issue follow the guideline below
+- Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG].
+- Write the problem with some description.
+- Attach relevant screenshots.
+
 # Goals
 ```
   - Basic GUI                                          Done
@@ -81,9 +81,14 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - One click install                                  Almost Done
   - Configuration file                                 Done
   - Making Pre-required installs automatic             Almost Done
-  - Integrating it as an app indicator           	     Done
+  - Integrating it as an app indicator                 Done
   - EC Map View                                        Done
-  - 
+  - CPU Profiles                                       Work in Progress!
+  - Battery Threshold                                  Work in Progress!
 ```
-# Known Bugs :- 1
+# Unsolved Issues :- 1
 - Advanced fan profile seems to not apply the curve to CPU, but GPU curve is applied but not above 90%.
+
+# Solved Issues
+- While monitoring the temps and fan speed, some of the sections are blank.
+  - Turn ```on``` the 10th Gen and above option in GUI accordingly to your CPU.
