@@ -93,7 +93,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Battery Threshold                                  Work in Progress!
 ```
 # Unsolved Issues :- 1
-- Advanced fan profile seems to not apply the curve to CPU, but GPU curve is applied but not above 90%.
+- Advanced fan profile seems to have a lower RPM than set in GUI.
 
 # Solved Issues
 - While monitoring the temps and fan speed, some of the sections are blank.
