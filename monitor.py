@@ -26,15 +26,15 @@ window_m.title('Monitering')
 dpi_base = 100
 dpi = window_m.winfo_fpixels('1i')
 dpi_scale = round(dpi/dpi_base)
-window_m.geometry(f'{dpi_scale * 320}x{dpi_scale * 110}')
+window_m.geometry(f'{dpi_scale * 320}x{dpi_scale * 130}')
 canvas = Canvas(window_m)
 canvas.configure(bg = 'black')
 
-def monitoring_int(label_c11, label_c22, label_c33, label_g11, label_g22, label_g33, label_m44, label_m55, label_m444, label_m555):
+def monitoring_int(label_c11, label_c22, label_c33, label_g11, label_g22, label_g33, label_m44, label_m55, label_m444, label_m555, label_battery_threshold, label_battery_threshold_value):
 	global monitoring
 	monitoring = 1
 	global timer
-	timer = imports_manager.threading.Timer(1, monitoring_int, args = (label_c11, label_c22, label_c33, label_g11, label_g22, label_g33, label_m44, label_m55, label_m444, label_m555))
+	timer = imports_manager.threading.Timer(1, monitoring_int, args = (label_c11, label_c22, label_c33, label_g11, label_g22, label_g33, label_m44, label_m55, label_m444, label_m555, label_battery_threshold, label_battery_threshold_value))
 	timer.start()
 	global temp_m
 	temp_m = mode
@@ -51,6 +51,9 @@ def monitoring_int(label_c11, label_c22, label_c33, label_g11, label_g22, label_
 		cpu_fan_s = (int(file.read(1).hex(),16))
 		file.seek(0x89)
 		gpu_fan_s = (int(file.read(1).hex(),16))
+		file.seek(0xef)
+		battery_threshold = (int(file.read(1).hex(),16)) - 128
+		label_battery_threshold_value.config(text = str(battery_threshold) + "%")
 		if flip_board == 0:
 			file.seek(0xca)
 		else:
@@ -134,7 +137,12 @@ label_m55.place(x = dpi_scale * 190, y = dpi_scale * 87)
 label_m555 = Label(window_m, text = "", fg = 'white', bg = 'black', font=("Helvetica", 11))
 label_m555.place(x = dpi_scale * 250, y = dpi_scale * 87)
 
-monitoring_int(label_c11, label_c22, label_c33, label_g11, label_g22, label_g33, label_m44, label_m55, label_m444, label_m555)
+label_battery_threshold = Label(window_m, text = "Battery_Threshold : ", fg = 'white', bg = 'black', font=("Helvetica", 10))
+label_battery_threshold.place(x = dpi_scale * 10, y = dpi_scale * 107)
+label_battery_threshold_value = Label(window_m, text = "", fg = 'white', bg = 'black', font=("Helvetica", 11))
+label_battery_threshold_value.place(x = dpi_scale * 190, y = dpi_scale * 107)
+
+monitoring_int(label_c11, label_c22, label_c33, label_g11, label_g22, label_g33, label_m44, label_m55, label_m444, label_m555, label_battery_threshold, label_battery_threshold_value)
 
 def on_closing():
 	timer.cancel()

@@ -269,7 +269,7 @@ def cooler_booster(source):
     corrections(lines)
 
 def monitoring(source):
-    imports_manager.os.system("sudo python3 monitor.py")
+    imports_manager.os.system("sudo python3 monitor.py & exit")
     
 def powersaver(source):
     f = 0
