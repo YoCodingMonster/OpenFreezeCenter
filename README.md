@@ -50,6 +50,9 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
       - If ```yes``` then add ```ec_sys write_support = 1``` line in file ```/etc/default/grub```, save and in terminal run command ```update-grub``` then reboot
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
 
+#How to Update?
+- Just delete the older folder and work in new folder!!
+
 # How To Run GUI app?
 - Open terminal inside the extracted folder and run ```sudo ./at_startup.sh```
 
