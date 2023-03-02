@@ -40,7 +40,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Mark the file ```at_startup.sh``` as executable
 - Open terminal inside the extracted folder and run ```sudo ./at_startup.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
-  - If the GUI did not open follow the steps below
+  - If the ```GUI did not open``` or ```something seems to not work``` follow the steps below
   - Disable the Secure Boot
   - Manually install Python Libraries like
     - ```sudo apt install python3-pip -y```
