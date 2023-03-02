@@ -61,6 +61,8 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - MSI GS65
 - MSI GF63
 - MSI GP76
+- MSI GS65 8RF
+- MSI GF75 Thin 9SCXR
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Working on Linux distro
@@ -68,6 +70,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - Pop OS
 - Mint
 - Kubuntu
+- KDE Neon
 - HELP ME ADD MORE DISTROS. TEST AND REPORT ME
 
 # For any issue follow the guideline below
