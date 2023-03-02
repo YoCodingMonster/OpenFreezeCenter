@@ -23,24 +23,31 @@
 ![Screenshot from 2021-06-10 04-16-36.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-36.png)
 
 # MSI Dragon Center for Linux
-# Official name :- OpenFreezeCenter
+# Official name :- Open Freeze Center
 
-- This project will be weekly Updated!
+- This project will be Monthly Updated!
 - For more features do comment and share your views!
 - Well if you like my work, Do follow me for more awesome projects!!
 
 For Those running Linux Distro on MSI laptops. This is the Graphic User Interface application meant for Fan control and monitoring in Linux.
 - This Application can run on any Linux distro!!
-- Installation is very easy with one command solution!!
+- Installation is very easy with one command solution!! (Most of the time XD)
 
 ### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
 
-# .DEB package comming soon, till then delete previous versions of the application by deleting the directory and replacing it with the new release you download. Reinstall is not required and will be only done the first time automatically! thanks to # @Special-Niewbie
-
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
+- Mark the file ```at_startup.sh``` as executable
 - Open terminal inside the extracted folder and run ```./at_startup.sh```
 - This will install all the dependencies which are missing and open the GUI app for the first time.
+  - If the GUI did not open follow the steps below
+  - Disable the Secure Boot
+  - Manually install Python Libraries like
+    - ```sudo apt install python3-pip -y```
+    - ```sudo apt-get install python3-tk -y```
+    - Check weather your Linux Kernal has ```ec_sys``` support
+      - If ```no``` then copy the file from inside the [DOWNLOADED ZIP] ```modprobe.d``` and ```modules-lode.d``` to [SYSTEM] ```etc/modprobe.d/``` and ```etc/modules-load.d/ec_sys.conf```, then restart
+      - If ```yes``` then add ```ec_sys write_support = 1``` line in file ```/etc/default/grub```, save and in terminal run command ```update-grub``` then reboot
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
 
 # How To Run GUI app?
@@ -55,7 +62,7 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
 - MSI GE66
 - MSI GS65
 - MSI GF63
-- MSI GP76 (11th Gen Intel)
+- MSI GP76
 - HELP ME ADD MORE MODELS. TEST AND REPORT ME
 
 # Working on Linux distro
@@ -71,17 +78,12 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
   - Fan Control with GUI                               Done
   - Auto, Basic, Advanced, Cooler Booster              Done
   - Basic temperature and RPM monitoring               Done
-  - One click install                                  Done
-  - Dark Mode                                          Done
+  - One click install                                  Almost Done
   - Configuration file                                 Done
-  - Back version support                               Done
-  - Making Pre-required installs automatic             Done
+  - Making Pre-required installs automatic             Almost Done
   - Integrating it as an app indicator           	     Done
   - EC Map View                                        Done
-  - Debian Package                                     In Beta Testing -> thanks to @Special-Niewbie
-  - Graph to monitor Temps and speeds                  In beta Testing
-  - Dual GPU support                                   In beta Testing
   - 
 ```
 # Known Bugs :- 1
-- If you are not able to see the Speed of CPU fan but the percentage is showing perfectely fine, then do enable the ```Intel 11Th gen``` and report me and tell the generation of your processor!!. The 11th gen tag is alone write now, 10th gen please do check and confirm!!
+- Advanced fan profile seems to not apply the curve to CPU, but GPU curve is applied but not above 90%.
