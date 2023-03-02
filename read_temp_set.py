@@ -1,11 +1,10 @@
 #! /usr/bin/python3
 
-import os
-import fileinput
+import imports_manager
 
 EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
-path_to_script = os.path.dirname(os.path.abspath(__file__))
-my_filename = os.path.join(path_to_script, "conf.txt")
+path_to_script = imports_manager.os.path.dirname(imports_manager.os.path.abspath(__file__))
+my_filename = imports_manager.os.path.join(path_to_script, "conf.txt")
 
 conf_file = open(my_filename, "r")
 all_lines = conf_file.readlines()
@@ -68,12 +67,12 @@ with open(EC_IO_FILE,'r+b') as file:
     lines = lines + str(int(file.read(1).hex(),16)) + ","
     file.seek(0x90)
     lines = lines + str(int(file.read(1).hex(),16)) + ","
- 
+    
 conf_file = open(my_filename, "w")
 conf_file.writelines(lines)
 conf_file.close()
 str_1 = ''
-for line in fileinput.FileInput(my_filename, inplace=1):
+for line in imports_manager.fileinput.FileInput(my_filename, inplace = 1):
     if line.rstrip():
         str_1 = str_1 + line
 conf_file = open(my_filename, "w")

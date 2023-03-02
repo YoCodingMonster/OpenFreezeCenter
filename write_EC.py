@@ -1,10 +1,10 @@
 #! /usr/bin/python3
 
-import os
+import imports_manager
 
 EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
-path_to_script = os.path.dirname(os.path.abspath(__file__))
-my_filename = os.path.join(path_to_script, "conf.txt")
+path_to_script = imports_manager.os.path.dirname(imports_manager.os.path.abspath(__file__))
+my_filename = imports_manager.os.path.join(path_to_script, "conf.txt")
 
 conf_file_b = open(my_filename, "r")
 all_lines = conf_file_b.readlines()

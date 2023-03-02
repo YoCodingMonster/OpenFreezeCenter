@@ -1,25 +1,21 @@
 #! /usr/bin/python3
 
-import signal
-import os
-import subprocess
-import webbrowser
-import fileinput
+import imports_manager
 
 #################################################################################################### Indicator Making
 
 APPINDICATOR_ID = 'myappindicator'
-iconpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon_22.png")
+iconpath = imports_manager.os.path.join(imports_manager.os.path.dirname(imports_manager.os.path.abspath(__file__)), "icon_22.png")
 
-path_to_script = os.path.dirname(os.path.abspath(__file__))
-my_filename = os.path.join(path_to_script, "conf.txt")
-check_1 = os.path.exists(my_filename)
+path_to_script = imports_manager.os.path.dirname(imports_manager.os.path.abspath(__file__))
+my_filename = imports_manager.os.path.join(path_to_script, "conf.txt")
+check_1 = imports_manager.os.path.exists(my_filename)
 
 if check_1 == False:
-    os.system("konsole -e 'bash -c \"./root_permissions.sh\"'")
-    os.system("konsole -e 'bash -c \"sudo ./install_deps.sh\"'")
+    # os.system("x-terminal-emulator -e 'bash -c \"./root_permissions.sh\"'")
+    imports_manager.os.system("x-terminal-emulator -e 'bash -c \"sudo ./install_deps.sh\"'")
     open(my_filename, "w").close()
-    subprocess.call(['chmod', '0777', my_filename])
+    imports_manager.subprocess.call(['chmod', '0777', my_filename])
     conf_file = open(my_filename, "w")
     conf_file.writelines("1\n0\n")
     temp_ = [140,0,20,40,45,50,60,70,0,20,40,45,50,60,70]
@@ -36,7 +32,7 @@ if check_1 == False:
         conf_file.write("%i," % val)
     conf_file.write("\n0")
     conf_file.close()
-    os.system("konsole -e 'bash -c \"sudo nohup python3 ${pkgdir}read_temp_set.py >/dev/null 2>&1\"'")
+    imports_manager.os.system("sudo python3 read_temp_set.py")
     
 import gi.repository
 gi.require_version('Gtk', '3.0')
@@ -55,15 +51,15 @@ def corrections(lines):
     conf_file.writelines(lines)
     conf_file.close()
     str_1 = ''
-    for line in fileinput.FileInput(my_filename, inplace=1):
+    for line in imports_manager.fileinput.FileInput(my_filename, inplace = True):
         if line.rstrip():
             str_1 = str_1 + line
     conf_file = open(my_filename, "w")
     conf_file.writelines(str_1)
     conf_file.close()
-    os.system("konsole -e 'bash -c \"sudo python3 ${pkgdir}write_EC.py\"'")
+    imports_manager.os.system("sudo python3 write_EC.py")
     return
-    
+
 all_lines = reading()
 lines = all_lines[0] + "\n" + all_lines[1] + "\n" + all_lines[2] + "\n" + all_lines[3] + "\n" + all_lines[4] + "\n" + all_lines[5] + "\n" + all_lines[6]
 corrections(lines)
@@ -198,14 +194,14 @@ def build_menu():
     item_ec.connect('activate', ec_map)
     menu.append(item_ec)
 
-    item_flip_board = gtk.MenuItem.new_with_label('Intel 11th Gen')                       ################# CPU fan monitor choose "ca" and "c8"
+    item_flip_board = gtk.MenuItem.new_with_label('Intel 10th Gen or above')                       ################# CPU fan monitor choose "ca" and "c8"
     item_flip_board.set_submenu(flip_board_submenu)
     
-    item_flip_board_1 = gtk.MenuItem.new_with_label('On')
+    item_flip_board_1 = gtk.MenuItem.new_with_label('Yes')
     item_flip_board_1.connect('activate', flip_board_1)
     flip_board_submenu.append(item_flip_board_1)
 
-    item_flip_board_2 = gtk.MenuItem.new_with_label('Off')
+    item_flip_board_2 = gtk.MenuItem.new_with_label('No')
     item_flip_board_2.connect('activate', flip_board_2)
     flip_board_submenu.append(item_flip_board_2)
 
@@ -222,7 +218,7 @@ def build_menu():
     return menu
 
 def github(source):
-    webbrowser.open("https://github.com/YoCodingMonster/MSI-Dragon-Center-for-Linux")
+    imports_manager.webbrowser.open("https://github.com/YoCodingMonster/MSI-Dragon-Center-for-Linux")
 
 def auto(source):
     all_lines = reading()
@@ -265,8 +261,7 @@ def fastest(source):
     corrections(lines)
 
 def advanced(source):
-    command_w = "nohup python3 ${pkgdir}advanced.py >/dev/null 2>&1"
-    os.popen((command_w), 'w')
+    imports_manager.os.system("sudo python3 advanced.py")
 
 def cooler_booster(source):
     all_lines = reading()
@@ -274,7 +269,7 @@ def cooler_booster(source):
     corrections(lines)
 
 def monitoring(source):
-    os.system("konsole -e 'bash -c \"sudo nohup python3 ${pkgdir}monitor.py >/dev/null 2>&1\"'")
+    imports_manager.os.system("sudo python3 monitor.py")
     
 def powersaver(source):
     f = 0
@@ -322,7 +317,7 @@ def battery_charge_threashold_100(source):
     corrections(lines)
     
 def ec_map(source):
-    os.system("konsole -e 'bash -c \"sudo nohup python3 ${pkgdir}ec_dump.py >/dev/null 2>&1\"'")
+    imports_manager.os.system("sudo python3 ec_dump.py")
     
 def flip_board_1(source):
     all_lines = reading()
@@ -338,5 +333,5 @@ def quit(source):
     gtk.main_quit()
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    imports_manager.signal.signal(imports_manager.signal.SIGINT, imports_manager.signal.SIG_DFL)
     main()
