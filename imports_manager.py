@@ -1,10 +1,40 @@
 import subprocess
 
+
 def install_lib(option, option_1, option_2 = " "):
     if option == 1: subprocess.check_call(["pip", "install", option_1])
     else: subprocess.check_call(["pip", "install", option_1, option_2])
 
-subprocess.check_call(["sudo", "apt", "install", "python3-pip", "-y"])
+
+try:
+    import distro
+except (ImportError, ModuleNotFoundError):
+    print ("Error, Module distro is required");
+    install_lib(1, "distro")
+
+dist = distro.id()
+
+def install_package(package_name):
+
+    if dist == "debian" or dist == "ubuntu":
+        cmd = ["sudo", "apt", "install", package_name, "-y"]
+    elif dist == "fedora" or dist == "centos" or dist == "rhel":
+        cmd = ["sudo", "dnf", "install", package_name, "-y"]
+    elif dist == "opensuse" or dist == "sles":
+        cmd = ["sudo", "zypper", "install", package_name, "-y"]
+    elif dist == "arch":
+        cmd = ["sudo", "pacman", "-S", package_name, "--noconfirm"]
+    else:
+        raise Exception("Unsupported distribution")
+    
+    subprocess.check_call(cmd)
+
+
+if dist == "arch":
+    install_package("python-pip")
+else:
+    install_package("python3-pip")
+
 
 try:
    import psutil
