@@ -1,9 +1,14 @@
-# Back on this Project from 1 March 2023!!
+# OpenFreezeCenter
 
-# ```Working on MSI Center software and making laptops with this software respond to calls from same script!!```
+## Overview
+**OpenFreezeCenter** provides a UI and automated scripts in order to control MSI Laptops. Check the #Supported section to see what models are supported.
 
-# Brand New UI. Now work as App Indicator
-# SCREENSHOTS
+Mainly made for Linux, as MSI does not have a native Linux client.
+
+## Screenshots
+<details>
+<summary>Screenshots</summary>
+
 ## Main Application
 ![Screenshot from 2021-06-10 04-16-03.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-03.png)
 
@@ -21,19 +26,20 @@
 
 ## EC Map Window
 ![Screenshot from 2021-06-10 04-16-36.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-36.png)
+</details>
 
-# MSI Dragon Center for Linux
-# Official name :- Open Freeze Center
+## Supported
+- MSI GE66
+- MSI GS65
+- MSI GF63
+- MSI GP76
+- MSI GS65 8RF
+- MSI GF75 Thin 9SCXR
 
-- This project will be Monthly Updated!
-- For more features do comment and share your views!
-- Well if you like my work, Do follow me for more awesome projects!!
+*More models are actively added, if your model isn't listed, check the issues tab, if there isn't a request for it already, make one.*
 
-For Those running Linux Distro on MSI laptops. This is the Graphic User Interface application meant for Fan control and monitoring in Linux.
-- This Application can run on any Linux distro!!
-- Installation is very easy with one command solution!! (Most of the time XD)
-
-### Disable SECURE BOOT because it interferes with the permission of the script to read/write to EC file.
+## Usage
+### **Secure Boot MUST** be disabled, otherwise it interferes with the permission of the script to read/write to EC file.
 
 # How To Install GUI app?
 - Download the .zip from the github and extract it wherever you want
@@ -50,51 +56,28 @@ For Those running Linux Distro on MSI laptops. This is the Graphic User Interfac
       - If ```yes``` then add ```ec_sys write_support = 1``` line in file ```/etc/default/grub```, save and in terminal run command ```update-grub``` then reboot
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
 
-#How to Update?
-- Just delete the older folder and work in new folder!!
+# Updating 
+- Just delete the older folder and work in new folder
 
-# How To Run GUI app?
-- Open terminal inside the extracted folder and run ```sudo ./at_startup.sh```
+## Bugs
+- Advanced fan profile seems to have a lower RPM than set in GUI.
 
-# Working on models
-- MSI GE66
-- MSI GS65
-- MSI GF63
-- MSI GP76
-- MSI GS65 8RF
-- MSI GF75 Thin 9SCXR
-- HELP ME ADD MORE MODELS. TEST AND REPORT ME
-
-# Working on Linux distro
-- Ubuntu
-- Pop OS
-- Mint
-- Kubuntu
-- KDE Neon
-- HELP ME ADD MORE DISTROS. TEST AND REPORT ME
-
-# For any issue follow the guideline below
+## Issue format
 - Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG].
 - Write the problem with some description.
 - Attach relevant screenshots.
 
-# Goals
-```
-  - Basic GUI                                          Done
-  - Fan Control with GUI                               Done
-  - Auto, Basic, Advanced, Cooler Booster              Done
-  - Basic temperature and RPM monitoring               Done
-  - One click install                                  Almost Done
-  - Configuration file                                 Done
-  - Making Pre-required installs automatic             Almost Done
-  - Integrating it as an app indicator                 Done
-  - EC Map View                                        Done
-  - CPU Profiles                                       Work in Progress!
-  - Battery Threshold                                  Work in Progress!
-```
-# Unsolved Issues :- 1
-- Advanced fan profile seems to have a lower RPM than set in GUI.
 
-# Solved Issues
-- While monitoring the temps and fan speed, some of the sections are blank.
-  - Turn ```on``` the 10th Gen and above option in GUI accordingly to your CPU.
+## Goals
+- [X] Basic GUI
+- [X] Fan Control with GUI
+- [X] Auto, Basic, Advanced, Cooler Booster
+- [X] Basic temperature and RPM monitoring
+- [ ] Basic temperature and RPM monitoring
+- [X] Configuration file
+- [ ] Making Pre-required installs automatic
+- [X] Integrating it as an app indicator
+- [X] EC Map View
+- [ ] CPU Profiles
+- [ ] Battery Threshold
+
