@@ -85,7 +85,7 @@ Mainly made for Linux, as MSI does not have a native Linux client.
 ## Issue format
 - Find if there is alreadfy an issue avilable for your ```LINUX DISTRO```. and comment your issue inside that with steps below.
   - If your ```LINUX DISTRO``` is not listed then make a issue with heading exactly as below.
-    - [LINUX DISTRO] issue!
+    - ```LINUX DISTRO``` issue!
 - Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG] while reporting the issue.
 - Write the problem with some description.
 - Attach relevant screenshots.
