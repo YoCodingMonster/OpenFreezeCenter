@@ -28,13 +28,24 @@ Mainly made for Linux, as MSI does not have a native Linux client.
 ![Screenshot from 2021-06-10 04-16-36.png](https://github.com/YoCodingMonster/OpenFreezeCenter/blob/a9af1fe3d027d6e2af8ceef4a0c62e2735c12e83/Screenshot%20from%202021-06-10%2004-16-36.png)
 </details>
 
-## Supported
+## Supported Laptop models (tested)
 - MSI GE66
 - MSI GS65
 - MSI GF63
 - MSI GP76
 - MSI GS65 8RF
 - MSI GF75 Thin 9SCXR
+
+## Supported Linux Distro (tested)
+- Ubuntu
+- debian
+- Pop os!
+- Fedora
+- Cent OS
+- Rhel
+- Open Sesu
+- Sles
+- Arch
 
 *More models are actively added, if your model isn't listed, check the issues tab, if there isn't a request for it already, make one.*
 
@@ -49,9 +60,18 @@ Mainly made for Linux, as MSI does not have a native Linux client.
   - If the ```GUI did not open``` or ```something seems to not work``` follow the steps below
   - Disable the Secure Boot
   - Manually install Python Libraries like
-    - ```sudo apt install python3-pip -y```
-    - ```sudo apt-get install python3-tk -y```
-    - Check weather your Linux Kernal has ```ec_sys``` support
+    - pip
+    - subprocess
+    - signal
+    - webbrowser
+    - fileinput
+    - threading
+    - os
+    - math
+    - psutil
+    - warnings
+    - tkinter
+  - Check weather your Linux Kernal has ```ec_sys``` support
       - If ```no``` then copy the file from inside the [DOWNLOADED ZIP] ```modprobe.d``` and ```modules-lode.d``` to [SYSTEM] ```etc/modprobe.d/``` and ```etc/modules-load.d/ec_sys.conf```, then restart
       - If ```yes``` then add ```ec_sys write_support = 1``` line in file ```/etc/default/grub```, save and in terminal run command ```update-grub``` then reboot
 - App will create ```conf.txt``` file. it will contain all your configurations and fan curve values. deleting that file will reset all your fan curves.
@@ -63,19 +83,20 @@ Mainly made for Linux, as MSI does not have a native Linux client.
 - Advanced fan profile seems to have a lower RPM than set in GUI.
 
 ## Issue format
-- Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG].
+- Find if there is alreadfy an issue avilable for your ```LINUX DISTRO```. and comment your issue inside that with steps below.
+  - If your ```LINUX DISTRO``` is not listed then make a issue with heading exactly as below.
+    - [LINUX DISTRO] issue!
+- Specify the System Specifications [CPU, GPU] and Model Number [MSI GP76 11UG] while reporting the issue.
 - Write the problem with some description.
 - Attach relevant screenshots.
 
 
 ## Goals
-- [X] Basic GUI
 - [X] Fan Control with GUI
 - [X] Auto, Basic, Advanced, Cooler Booster
 - [X] Basic temperature and RPM monitoring
-- [ ] Basic temperature and RPM monitoring
 - [X] Configuration file
-- [ ] Making Pre-required installs automatic
+- [ ] Making Pre-required installs automatic for major linux branches 
 - [X] Integrating it as an app indicator
 - [X] EC Map View
 - [ ] CPU Profiles
