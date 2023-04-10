@@ -16,7 +16,7 @@ dist = distro.id()
 
 def install_package(package_name):
 
-    if dist == "debian" or dist == "ubuntu":
+    if dist == "debian" or dist == "ubuntu" or dist == "pop":
         cmd = ["sudo", "apt", "install", package_name, "-y"]
     elif dist == "fedora" or dist == "centos" or dist == "rhel":
         cmd = ["sudo", "dnf", "install", package_name, "-y"]
