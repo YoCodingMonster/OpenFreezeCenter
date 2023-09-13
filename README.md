@@ -1,3 +1,7 @@
+# OpenFreezeCenter-Lite
+- Same thing just without much hassle
+- https://github.com/YoCodingMonster/OpenFreezeCenter-Lite
+
 # OpenFreezeCenter
 
 ## Overview
