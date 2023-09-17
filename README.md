@@ -1,6 +1,6 @@
 # OpenFreezeCenter-Lite
-- Same thing just without much hassle
-- https://github.com/YoCodingMonster/OpenFreezeCenter-Lite/tree/v1.0
+- Same thing without much hassle
+- https://github.com/YoCodingMonster/OpenFreezeCenter-Lite
 
 # OpenFreezeCenter
 
