@@ -1,5 +1,5 @@
 # OpenFreezeCenter (OFC)
-- Provides a UI and automated scripts in order to control MSI Laptops. Check the #Supported section to see what models are supported.
+- Provides a UI and automated scripts in order to control MSI Laptops
 - Made for Linux, as MSI does not have a native Linux client.
 - if you do now want to run the GUI or if it is not working for you then try
   # OpenFreezeCenter-Lite (OFC-l)
