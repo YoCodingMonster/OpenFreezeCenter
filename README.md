@@ -34,13 +34,20 @@
   - If the EC read/write is enabled on your OS, the script will generate ```config.py``` file, which contains the configuration for fan curves and their addresses.
 - DONE!
 
-# RUNNING or UPDATING
+# UPDATING
 - Save your AUTO and ADVANCED speeds and in notepad and delete the old ```config.py``` file and then only try the new script.
-- After you have run the script and new ```config.py``` file is created, paste the new values in the AUTO_SPEED and ADV_SPEED vales place.
 - Opening virtual environment. the path i will be using is ```/home/pm/Desktop/OFC```. Here ```OFC``` is the folder with script.
   ```
   cd /home/pm/Desktop/OFC
   bin/pip3 install ectweaker -U
+  sudo nohup bin/python3 OFC.py
+  ```
+- After you have run the script and new ```config.py``` file is created, paste the new values in the AUTO_SPEED and ADV_SPEED vales place.
+
+# RUNNING
+- Opening virtual environment. the path i will be using is ```/home/pm/Desktop/OFC```. Here ```OFC``` is the folder with script.
+  ```
+  cd /home/pm/Desktop/OFC
   sudo nohup bin/python3 OFC.py
   ```
 - Close the terminal and enjoy!!
