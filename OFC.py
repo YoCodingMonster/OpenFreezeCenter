@@ -59,7 +59,7 @@ if CHECK != 1:
 		CONFIG_FILE = open(PATH_TO_CONFIG, "r")
 	except FileNotFoundError:
 		CONFIG = []
-		CHOICE = "\nIf you want universal auto fan profile whihc is as below then [SELECT YES]\n\tAUTO SPEEDS = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]\n\nIf you want to fetch vendor specified auto fan profile which will require you to \n\t1 :- Close this(Before closing read all the steps)\n\t2 :- boot into windows\n\t3 :- set the fan profile to auto\n\t4 :- boot back to linux and then [SELECT NO]"
+		CHOICE = "\nIf you want universal auto fan profile which is as below then [SELECT YES]\n\tAUTO SPEEDS = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]\n\nIf you want to fetch vendor specified auto fan profile which will require you to \n\t1 :- Close this(Before closing read all the steps)\n\t2 :- boot into windows\n\t3 :- set the fan profile to auto\n\t4 :- boot back to linux and then [SELECT NO]"
 		LINE_YES = "PROFILE = 1\nAUTO_SPEED = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]"
 		LINE_NO = "PROFILE = 1\nAUTO_SPEED = [["+str(ECT.read(0x72, 1))+", "+str(ECT.read(0x73, 1))+", "+str(ECT.read(0x74, 1))+", "+str(ECT.read(0x75, 1))+", "+str(ECT.read(0x76, 1))+", "+str(ECT.read(0x77, 1))+", "+str(ECT.read(0x78, 1))+"], ["+str(ECT.read(0x8a, 1))+", "+str(ECT.read(0x8b, 1))+", "+str(ECT.read(0x8c, 1))+", "+str(ECT.read(0x8d, 1))+", "+str(ECT.read(0x8e, 1))+", "+str(ECT.read(0x8f, 1))+", "+str(ECT.read(0x90, 1))+"]]"
 		CONFIG.append(create_dialog("Auto Profile Selection", CHOICE, LINE_YES, LINE_NO, 300, 150, 1))
