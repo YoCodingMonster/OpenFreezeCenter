@@ -33,12 +33,12 @@ else
     echo "----------Installing Expert----------"
     sudo apt-get install expect
     echo "----------Moving files to virtual environment----------"
-    cp -i ~/Downloads/OpenFreezeCenter/install.sh  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter/file_1.sh  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter/file_2.sh  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter/OFC.py  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter/README.md  ~/Desktop/OFC
-    cp -i ~/Downloads/OpenFreezeCenter/LICENSE  ~/Desktop/OFC
+    cp -i ~/Downloads/OpenFreezeCenter-5/install.sh  ~/Desktop/OFC
+    cp -i ~/Downloads/OpenFreezeCenter-5/file_1.sh  ~/Desktop/OFC
+    cp -i ~/Downloads/OpenFreezeCenter-5/file_2.sh  ~/Desktop/OFC
+    cp -i ~/Downloads/OpenFreezeCenter-5/OFC.py  ~/Desktop/OFC
+    cp -i ~/Downloads/OpenFreezeCenter-5/README.md  ~/Desktop/OFC
+    cp -i ~/Downloads/OpenFreezeCenter-5/LICENSE  ~/Desktop/OFC
     FLAG_3=1
 fi
 
