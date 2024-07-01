@@ -1,10 +1,44 @@
 #! /usr/bin/python3
 
 import os
-import ECTweaker as ECT
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
+
+EC_IO_FILE = '/sys/kernel/debug/ec/ec0/io'
+
+# Universal EC Byte writing
+
+def write(BYTE, VALUE):
+    with open(EC_IO_FILE,'w+b') as file:
+        file.seek(BYTE)
+        file.write(bytes((VALUE,)))
+
+# Universal EC Byte reading
+
+def read(BYTE, SIZE, FORMAT):
+    with open(EC_IO_FILE,'r+b') as file:
+        file.seek(BYTE)
+        if SIZE == 1 and FORMAT == 0:
+            VALUE = int(file.read(1).hex(),16)
+        elif SIZE == 1 and FORMAT == 1:
+            VALUE = file.read(1).hex()
+        elif SIZE == 2 and FORMAT == 0:
+            VALUE = int(file.read(2).hex(),16)
+        elif SIZE == 2 and FORMAT == 1:
+            VALUE = file.read(2).hex()
+    return VALUE
+
+def fan_profile(PROFILE, ONOFF, ADDRESS = 0, SPEED = 0):
+    # Setting up fan profiles
+    if PROFILE != 4:
+        write(ONOFF[0][0], ONOFF[0][1])      # Cooler Booster fan curve off
+        write(ONOFF[1][0], ONOFF[1][1])      # Auto/Adv/Basic/ fan curve on
+        for CPU_GPU_ROWS in range (0, 2):
+            for FAN_SPEEDS in range (0, 7):
+                write(ADDRESS[CPU_GPU_ROWS][FAN_SPEEDS], SPEED[CPU_GPU_ROWS][FAN_SPEEDS])
+    else:
+        write(ONOFF[0], ONOFF[1])      # Cooler Booster fan curve on/off
 
 #   PROFILE                      = 1 or 2 or 3 or 4
 #	AUTO_SPEED                   = [[CPU1, CPU2, CPU3, CPU4, CPU5, CPU6, CPU7], [GPU1, GPU2, GPU3, GPU4, GPU5, GPU6, GPU7]]
@@ -52,30 +86,26 @@ def create_dialog(TITLE, TEXT, YES, NO, x, y, RESPONSE_TYPE):
 # Setting the config.py file where all the data will be stored #
 ################################################################
 
-CHECK = ECT.check()
-if CHECK != 1:
-	PATH_TO_CONFIG = str(os.path.realpath(os.path.dirname(__file__))) + "/config.py"
-	try:
-		CONFIG_FILE = open(PATH_TO_CONFIG, "r")
-	except FileNotFoundError:
-		CONFIG = []
-		CHOICE = "\nIf you want universal auto fan profile whihc is as below then [SELECT YES]\n\tAUTO SPEEDS = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]\n\nIf you want to fetch vendor specified auto fan profile which will require you to \n\t1 :- Close this(Before closing read all the steps)\n\t2 :- boot into windows\n\t3 :- set the fan profile to auto\n\t4 :- boot back to linux and then [SELECT NO]"
-		LINE_YES = "PROFILE = 1\nAUTO_SPEED = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]"
-		LINE_NO = "PROFILE = 1\nAUTO_SPEED = [["+str(ECT.read(0x72, 1))+", "+str(ECT.read(0x73, 1))+", "+str(ECT.read(0x74, 1))+", "+str(ECT.read(0x75, 1))+", "+str(ECT.read(0x76, 1))+", "+str(ECT.read(0x77, 1))+", "+str(ECT.read(0x78, 1))+"], ["+str(ECT.read(0x8a, 1))+", "+str(ECT.read(0x8b, 1))+", "+str(ECT.read(0x8c, 1))+", "+str(ECT.read(0x8d, 1))+", "+str(ECT.read(0x8e, 1))+", "+str(ECT.read(0x8f, 1))+", "+str(ECT.read(0x90, 1))+"]]"
-		CONFIG.append(create_dialog("Auto Profile Selection", CHOICE, LINE_YES, LINE_NO, 300, 150, 1))
+PATH_TO_CONFIG = str(os.path.realpath(os.path.dirname(__file__))) + "/config.py"
+try:
+	open(PATH_TO_CONFIG, "r")
+except FileNotFoundError:
+	CONFIG = []
+	CHOICE = "\nIf you want universal auto fan profile which is as below then [SELECT YES]\n\tAUTO SPEEDS = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]\n\nIf you want to fetch vendor specified auto fan profile which will require you to \n\t1 :- Close this(Before closing read all the steps)\n\t2 :- boot into windows\n\t3 :- set the fan profile to auto\n\t4 :- boot back to linux and then [SELECT NO]"
+	LINE_YES = "PROFILE = 1\nAUTO_SPEED = [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]]"
+	LINE_NO = "PROFILE = 1\nAUTO_SPEED = [["+str(read(0x72, 1, 0))+", "+str(read(0x73, 1, 0))+", "+str(read(0x74, 1, 0))+", "+str(read(0x75, 1, 0))+", "+str(read(0x76, 1, 0))+", "+str(read(0x77, 1, 0))+", "+str(read(0x78, 1, 0))+"], ["+str(read(0x8a, 1, 0))+", "+str(read(0x8b, 1, 0))+", "+str(read(0x8c, 1, 0))+", "+str(read(0x8d, 1, 0))+", "+str(read(0x8e, 1, 0))+", "+str(read(0x8f, 1, 0))+", "+str(read(0x90, 1, 0))+"]]"
+	CONFIG.append(create_dialog("Auto Profile Selection", CHOICE, LINE_YES, LINE_NO, 300, 150, 1))
 
-		CHOICE = "\nIs your CPU intel 10th Gen and above\n"
-		LINE_YES = "\nADV_SPEED =  [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]] # Edit this list for ADVANCED FAN SPEEDS first the CPU speeds teh GPU speeds\nBASIC_OFFSET = 0 # Edit this for a offset of fan speeds from AUTO SPEEDS from -30 to 30\nCPU = 1\nAUTO_ADV_VALUES = [0xd4, 13, 141]\nCOOLER_BOOSTER_OFF_ON_VALUES = [0x98, 2, 130]\nCPU_GPU_FAN_SPEED_ADDRESS = [[0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78], [0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90]]\nCPU_GPU_TEMP_ADDRESS = [0x68, 0x80]\nCPU_GPU_RPM_ADDRESS = [0xc8, 0xca]\nBATTERY_THRESHOLD_VALUE = 100 # Edit this value from between 50 to 100 for the percentage your battery will charge upto"
-		LINE_NO =  "\nADV_SPEED =  [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]] # Edit this list for ADVANCED FAN SPEEDS first the CPU speeds teh GPU speeds\nBASIC_OFFSET = 0 # Edit this for a offset of fan speeds from AUTO SPEEDS from -30 to 30\nCPU = 0\nAUTO_ADV_VALUES = [0xf4, 12, 140]\nCOOLER_BOOSTER_OFF_ON_VALUES = [0x98, 0, 128]\nCPU_GPU_FAN_SPEED_ADDRESS = [[0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78], [0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90]]\nCPU_GPU_TEMP_ADDRESS = [0x68, 0x80]\nCPU_GPU_RPM_ADDRESS = [0xc8, 0xca]\nBATTERY_THRESHOLD_VALUE = 100 # Edit this value from between 50 to 100 for the percentage your battery will charge upto"
-		CONFIG.append(create_dialog("CPU Gen Selection", CHOICE, LINE_YES, LINE_NO, 300, 50, 1))
+	CHOICE = "\nIs your CPU intel 10th Gen and above\n"
+	LINE_YES = "\nADV_SPEED =  [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]] # Edit this list for ADVANCED FAN SPEEDS first the CPU speeds the GPU speeds\nBASIC_OFFSET = 0 # Edit this for a offset of fan speeds from AUTO SPEEDS from -30 to 30\nCPU = 1\nAUTO_ADV_VALUES = [0xd4, 13, 141]\nCOOLER_BOOSTER_OFF_ON_VALUES = [0x98, 2, 130]\nCPU_GPU_FAN_SPEED_ADDRESS = [[0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78], [0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90]]\nCPU_GPU_TEMP_ADDRESS = [0x68, 0x80]\nCPU_GPU_RPM_ADDRESS = [0xc8, 0xca]\nBATTERY_THRESHOLD_VALUE = 100 # Edit this value from between 50 to 100 for the percentage your battery will charge upto"
+	LINE_NO =  "\nADV_SPEED =  [[0, 40, 48, 56, 64, 72, 80], [0, 48, 56, 64, 72, 79, 86]] # Edit this list for ADVANCED FAN SPEEDS first the CPU speeds the GPU speeds\nBASIC_OFFSET = 0 # Edit this for a offset of fan speeds from AUTO SPEEDS from -30 to 30\nCPU = 0\nAUTO_ADV_VALUES = [0xf4, 12, 140]\nCOOLER_BOOSTER_OFF_ON_VALUES = [0x98, 0, 128]\nCPU_GPU_FAN_SPEED_ADDRESS = [[0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78], [0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90]]\nCPU_GPU_TEMP_ADDRESS = [0x68, 0x80]\nCPU_GPU_RPM_ADDRESS = [0xc8, 0xca]\nBATTERY_THRESHOLD_VALUE = 100 # Edit this value from between 50 to 100 for the percentage your battery will charge upto"
+	CONFIG.append(create_dialog("CPU Gen Selection", CHOICE, LINE_YES, LINE_NO, 300, 50, 1))
 
-		CONFIG_FILE = open(PATH_TO_CONFIG, "w")
-		CONFIG_FILE.writelines(CONFIG)
-		CONFIG_FILE.close()
-	finally:
-		import config
-else:
-	create_dialog("Enabling EC Read/Write Option", "Rebooting system within 1 min!\nPlease save all work before it happens!", "", "", 200, 100, 2)
+	CONFIG_FILE = open(PATH_TO_CONFIG, "w")
+	CONFIG_FILE.writelines(CONFIG)
+	CONFIG_FILE.close()
+finally:
+	import config
 
 ##########################
 # Writing config.py file #
@@ -124,25 +154,25 @@ def profile_selection(combobox):
 	if profile == "Auto":
 		config.PROFILE = 1
 		config_writer()
-		ECT.fan_profile(0, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[1]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(config.AUTO_SPEED, 0))
+		fan_profile(1, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[1]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(config.AUTO_SPEED, 0))
 	elif profile == "Basic":
 		config.PROFILE = 2
 		config_writer()
-		ECT.fan_profile(0, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[2]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(BASIC_SPEED, 30 if (config.BASIC_OFFSET > 30) else -30 if (config.BASIC_OFFSET < -30) else config.BASIC_OFFSET))
+		fan_profile(2, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[2]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(BASIC_SPEED, 30 if (config.BASIC_OFFSET > 30) else -30 if (config.BASIC_OFFSET < -30) else config.BASIC_OFFSET))
 	elif profile == "Advanced":
 		config.PROFILE = 3
 		config_writer()
-		ECT.fan_profile(0, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[2]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(config.ADV_SPEED, 0))
+		fan_profile(3, [[config.AUTO_ADV_VALUES[0], config.AUTO_ADV_VALUES[2]], [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[1]]], config.CPU_GPU_FAN_SPEED_ADDRESS, speed_checker(config.ADV_SPEED, 0))
 	elif profile == "Cooler Booster":
 		config.PROFILE = 4
 		config_writer()
-		ECT.fan_profile(1, [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[2]])
+		fan_profile(4, [config.COOLER_BOOSTER_OFF_ON_VALUES[0], config.COOLER_BOOSTER_OFF_ON_VALUES[2]])
 
 def bct_selection(combobox):
 	model = combobox.get_model()
 	active_iter = combobox.get_active_iter()
 	config.BATTERY_THRESHOLD_VALUE = int(model[active_iter][0])
-	ECT.write(0xe4, config.BATTERY_THRESHOLD_VALUE + 128)
+	write(0xe4, config.BATTERY_THRESHOLD_VALUE + 128)
 	config_writer()
 
 def label_maker(text, x, y, offset, fixed):
@@ -169,14 +199,14 @@ def label_maker(text, x, y, offset, fixed):
 	fixed.add(LABEL)
 
 def update_label():
-	CPU_TEMP = ECT.read(config.CPU_GPU_TEMP_ADDRESS[0], 1)
-	GPU_TEMP = ECT.read(config.CPU_GPU_TEMP_ADDRESS[1], 1)
+	CPU_TEMP = read(config.CPU_GPU_TEMP_ADDRESS[0], 1, 0)
+	GPU_TEMP = read(config.CPU_GPU_TEMP_ADDRESS[1], 1, 0)
 	try:
-		CPU_FAN_RPM = 478000//ECT.read(config.CPU_GPU_RPM_ADDRESS[0], 2)
+		CPU_FAN_RPM = 478000//read(config.CPU_GPU_RPM_ADDRESS[0], 2, 0)
 	except ZeroDivisionError:
 		CPU_FAN_RPM = 0
 	try:
-		GPU_FAN_RPM = 478000//ECT.read(config.CPU_GPU_RPM_ADDRESS[1], 2)
+		GPU_FAN_RPM = 478000//read(config.CPU_GPU_RPM_ADDRESS[1], 2, 0)
 	except ZeroDivisionError:
 		GPU_FAN_RPM = 0
 
@@ -249,7 +279,7 @@ class ParentWindow(Gtk.Window):
 		self.CPU_CURR_TEMP.set_xalign(0.35)
 		self.CPU_CURR_TEMP.set_property("margin-left", 0)
 		self.CPU_CURR_TEMP.set_property("margin-right", 10)
-		self.CPU_CURR_TEMP.set_label(str(ECT.read(config.CPU_GPU_TEMP_ADDRESS[0], 1)))
+		self.CPU_CURR_TEMP.set_label(str(read(config.CPU_GPU_TEMP_ADDRESS[0], 1, 0)))
 		CPU_CURR_TEMP_STYLE = self.CPU_CURR_TEMP.get_style_context()
 		CPU_CURR_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 		fixed.put(self.CPU_CURR_TEMP, 60, 80)
@@ -295,7 +325,7 @@ class ParentWindow(Gtk.Window):
 		self.CPU_FAN_RPM.set_xalign(0.3)
 		self.CPU_FAN_RPM.set_property("margin-left", 0)
 		self.CPU_FAN_RPM.set_property("margin-right", 10)
-		self.CPU_FAN_RPM.set_label("" if ECT.read(config.CPU_GPU_RPM_ADDRESS[0], 2) == 0 else str(478000//ECT.read(config.CPU_GPU_RPM_ADDRESS[0], 2)))
+		self.CPU_FAN_RPM.set_label("0" if read(config.CPU_GPU_RPM_ADDRESS[0], 2, 0) == 0 else str(478000//read(config.CPU_GPU_RPM_ADDRESS[0], 2, 0)))
 		CPU_FAN_RPM_STYLE = self.CPU_FAN_RPM.get_style_context()
 		CPU_FAN_RPM_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 		fixed.put(self.CPU_FAN_RPM, 240, 80)
@@ -311,7 +341,7 @@ class ParentWindow(Gtk.Window):
 		self.GPU_CURR_TEMP.set_xalign(0.35)
 		self.GPU_CURR_TEMP.set_property("margin-left", 0)
 		self.GPU_CURR_TEMP.set_property("margin-right", 10)
-		self.GPU_CURR_TEMP.set_label(str(ECT.read(config.CPU_GPU_TEMP_ADDRESS[1], 1)))
+		self.GPU_CURR_TEMP.set_label(str(read(config.CPU_GPU_TEMP_ADDRESS[1], 1, 0)))
 		GPU_CURR_TEMP_STYLE = self.GPU_CURR_TEMP.get_style_context()
 		GPU_CURR_TEMP_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 		fixed.put(self.GPU_CURR_TEMP, 60, 110)
@@ -357,7 +387,7 @@ class ParentWindow(Gtk.Window):
 		self.GPU_FAN_RPM.set_xalign(0.3)
 		self.GPU_FAN_RPM.set_property("margin-left", 0)
 		self.GPU_FAN_RPM.set_property("margin-right", 10)
-		self.GPU_FAN_RPM.set_label("" if ECT.read(config.CPU_GPU_RPM_ADDRESS[1], 2) == 0 else str(478000//ECT.read(config.CPU_GPU_RPM_ADDRESS[1], 2)))
+		self.GPU_FAN_RPM.set_label("0" if read(config.CPU_GPU_RPM_ADDRESS[1], 2, 0) == 0 else str(478000//read(config.CPU_GPU_RPM_ADDRESS[1], 2, 0)))
 		GPU_FAN_RPM_STYLE = self.GPU_FAN_RPM.get_style_context()
 		GPU_FAN_RPM_STYLE.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 		fixed.put(self.GPU_FAN_RPM, 240, 110)
@@ -390,3 +420,4 @@ parent_window = ParentWindow()
 parent_window.connect("destroy", Gtk.main_quit)
 parent_window.show_all()
 Gtk.main()
+
