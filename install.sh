@@ -21,8 +21,10 @@ else
     echo "----------Creating Folder for Open Freeze Center----------"
     cd ~/Desktop
     mkdir OFC
-    echo "----------Installing python3-virtualenv AND python3-venv----------"
-    sudo apt install python3-virtualenv python3-venv
+    echo "----------Installing python3-virtualenv AND python3-venv and other dependencies----------"
+    sudo apt update
+    sudo apt upgrade
+    sudo apt install python3-virtualenv python3-venv libgirepository1.0-dev libcairo2-dev
     echo "----------Creating Virtual Environment for Open Freeze Center----------"
     python3 -m venv ~/Desktop/OFC
     echo "----------Virtual Environment for Open Freeze Center created----------"
