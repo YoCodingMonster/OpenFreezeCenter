@@ -1,5 +1,7 @@
 #!/bin/bash
 
+chmod +x file_{1,2}.sh
+
 FLAG_1=0
 FLAG_2=0
 FLAG_3=0
