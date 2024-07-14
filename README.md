@@ -8,8 +8,6 @@
 
 # INSTALLATION / UPDATING
 - ```cd``` into the download folder and execute (UBUNTU)
-  - ```chmod +x file_1.sh```
-  - ```chmod +x file_2.sh```
   - ```chmod +x install.sh```
 - Now run the ```install.sh```, That will install all the dependencies and create a virtual python environment on desktop for the script to work.
 - (ONLY FOR INSTALLATION) ```Reboot``` after the script complete the first run.
