@@ -13,6 +13,10 @@ laptops on Linux, since MSI ships no Linux client of its own.
 Prefer no GUI at all? [OpenFreezeCenter-Lite](https://github.com/YoCodingMonster/OpenFreezeCenter-Lite)
 does the same job from the command line.
 
+| | |
+|---|---|
+| ![Main window](screenshots/02-main-light.png) | ![Fan curve editor](screenshots/04-fan-curves.png) |
+
 ## Requirements
 
 - Python 3.8+, PyGObject, **GTK 4.14 or newer**, **libadwaita 1.4 or newer**
