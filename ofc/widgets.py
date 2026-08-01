@@ -49,9 +49,9 @@ SWATCH_ALPHA = 0.45
 TEMP_MAX = 100.0
 GRID_STEPS = (0, 25, 50, 75, 100)
 
-# The RPM axis is quantised to this so its labels stay round numbers, and it
-# only ever grows, so a fan crossing a boundary cannot make the axis flap.
-RPM_STEP = 2000
+# The RPM axis is quantised up to a multiple of this, which keeps both the
+# ceiling and the quarter-way gridline labels round whatever the peak is.
+RPM_STEP = 1000
 
 
 def _rgba(hex_colour, alpha=1.0):
@@ -173,22 +173,23 @@ class SensorGraph(_ChartBase):
     temperature lines stay the foreground of the chart.
     """
 
-    def __init__(self, monitor):
+    def __init__(self, monitor, config):
         super().__init__()
         self.monitor = monitor
-        self._rpm_ceiling = RPM_STEP
+        self.config = config
         self.set_size_request(-1, 168)
         self.set_hexpand(True)
 
     def _fan_ceiling(self):
-        """The RPM axis top: a round number that only ever grows."""
-        peak = max(
-            max(self.monitor.cpu_rpm_history, default=0),
-            max(self.monitor.gpu_rpm_history, default=0),
-        )
-        needed = -(-peak // RPM_STEP) * RPM_STEP
-        self._rpm_ceiling = max(self._rpm_ceiling, needed)
-        return self._rpm_ceiling
+        """The RPM axis top: the stored peak, rounded up to a round number.
+
+        Scaling from the peak the fans have ever reached rather than from the
+        peak in the visible sixty seconds is what keeps the axis still. The
+        stored value only ever grows, so the axis cannot rescale downwards
+        under a plot the user is in the middle of reading.
+        """
+        peak = max(self.config.cpu_rpm_peak, self.config.gpu_rpm_peak)
+        return max(RPM_STEP, -(-peak // RPM_STEP) * RPM_STEP)
 
     def do_snapshot(self, snapshot):
         width = self.get_width()

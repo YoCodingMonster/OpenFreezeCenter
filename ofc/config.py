@@ -20,7 +20,13 @@ OFFSET_MAX = 30
 BATTERY_MIN = 50
 BATTERY_MAX = 100
 
-CONFIG_VERSION = 2
+# A ceiling on the recorded fan peaks. A misread EC period yields an absurd
+# RPM - the divisor is a constant over a 16 bit value, so a period of 1 reads
+# as 478000 - and a single bad sample must not be able to permanently wreck
+# the scale of the chart it feeds.
+RPM_PEAK_MAX = 12000
+
+CONFIG_VERSION = 3
 
 PROFILE_AUTO = "auto"
 PROFILE_BASIC = "basic"
@@ -54,6 +60,14 @@ EC_LAYOUTS = {
 
 def _clamp(value, low, high):
     return max(low, min(high, value))
+
+
+def _rpm_peak(value):
+    """Coerce a stored fan peak into a sane RPM, discarding rubbish as 0."""
+    try:
+        return _clamp(int(value), 0, RPM_PEAK_MAX)
+    except (TypeError, ValueError):
+        return 0
 
 
 def _speed_list(values, fallback):
@@ -106,6 +120,20 @@ class Config:
     advanced_gpu: list = field(default_factory=lambda: list(DEFAULT_AUTO_GPU))
     basic_offset: int = 0
     battery_threshold: int = 100
+
+    # The fastest each fan has ever been recorded at, which is what the RPM
+    # axis of the sensor chart is scaled from. Kept here rather than in the
+    # chart so that a fresh session starts at the scale the last one ended
+    # at, instead of growing under the plot while the fans spin up.
+    cpu_rpm_peak: int = 0
+    gpu_rpm_peak: int = 0
+    # True once the peaks came from a deliberate full-speed measurement
+    # rather than from whatever happened to be observed. `fan_rpm_asked`
+    # records that the offer to measure has been made, so declining it once
+    # is not re-asked at every launch; the main menu still offers it.
+    fan_rpm_calibrated: bool = False
+    fan_rpm_asked: bool = False
+
     hardware: Hardware = field(default_factory=Hardware)
 
     def normalised(self):
@@ -122,6 +150,10 @@ class Config:
             battery_threshold=_clamp(
                 int(self.battery_threshold), BATTERY_MIN, BATTERY_MAX
             ),
+            cpu_rpm_peak=_rpm_peak(self.cpu_rpm_peak),
+            gpu_rpm_peak=_rpm_peak(self.gpu_rpm_peak),
+            fan_rpm_calibrated=bool(self.fan_rpm_calibrated),
+            fan_rpm_asked=bool(self.fan_rpm_asked),
         )
 
 

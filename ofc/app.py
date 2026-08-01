@@ -131,6 +131,7 @@ class OFCApplication(Adw.Application):
             ("quit", self._on_quit, ["<primary>q"]),
             ("about", self._on_about, []),
             ("open-config", self._on_open_config, []),
+            ("calibrate-fans", self._on_calibrate_fans, []),
             ("website", self._on_website, []),
             ("report-issue", self._on_report_issue, []),
         ):
@@ -175,6 +176,10 @@ class OFCApplication(Adw.Application):
 
     def _on_report_issue(self, *_args):
         open_externally(ISSUE_URL)
+
+    def _on_calibrate_fans(self, *_args):
+        if self.window is not None:
+            self.window.calibrate_fans()
 
     def _on_open_config(self, *_args):
         folder = os.path.dirname(cfg.config_path())

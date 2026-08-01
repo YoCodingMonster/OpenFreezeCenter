@@ -145,8 +145,11 @@ class SimulatedController(EmbeddedController):
         cpu_temp, gpu_temp = (int(value) for value in self._temps)
         self._memory[0x68] = cpu_temp
         self._memory[0x80] = gpu_temp
-        for address, temp in ((0xC8, cpu_temp), (0xCA, gpu_temp)):
-            rpm = 1200 + (temp - 35) * 55
+        # Cooler Booster pins both fans near their ceiling whatever the
+        # temperature is, which is what the fan speed measurement relies on.
+        boosted = self._memory[0x98] in (128, 130)
+        for address, temp, top in ((0xC8, cpu_temp, 5400), (0xCA, gpu_temp, 5150)):
+            rpm = top - random.randint(0, 60) if boosted else 1200 + (temp - 35) * 55
             period = int(RPM_CONSTANT / max(rpm, 1))
             self._memory[address] = (period >> 8) & 0xFF
             self._memory[address + 1] = period & 0xFF

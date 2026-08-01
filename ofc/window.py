@@ -64,6 +64,185 @@ class ReadingsTable(Gtk.Grid):
             self.cells[(key, "rpm")].set_label(f"{rpm}" if rpm else "off")
 
 
+class FanCalibration:
+    """Find the fans' real top speed by running them flat out for a minute.
+
+    The chart scales its RPM axis from the highest speed ever recorded. Left
+    to discover that on its own, a fresh install spends its first minutes
+    with the axis growing under the plot, because an idle fan is nowhere near
+    the machine's ceiling. Measuring it once directly, and storing the result,
+    means every later session opens at the right scale.
+
+    Cooler Booster is the only way to ask for maximum speed regardless of
+    profile, so it is what the measurement uses. The fans are loud for the
+    duration, which is why nothing here starts without the user agreeing to
+    it, and why the run can be stopped at any point.
+    """
+
+    DURATION_SECONDS = 60
+
+    def __init__(self, window):
+        self.window = window
+        self.dialog = None
+        self.remaining = self.DURATION_SECONDS
+        self.peaks = {"cpu": 0, "gpu": 0}
+        self.restore_booster = False
+        self.timer_id = None
+        self.reading_id = None
+        self.close_id = None
+        self.finished = False
+
+    ###########################################################################
+    # The offer
+    ###########################################################################
+
+    def offer(self):
+        """Ask permission. Recorded either way, so it is asked only once."""
+        config = self.window.config
+        config.fan_rpm_asked = True
+        cfg.save(config)
+
+        dialog = Adw.MessageDialog(
+            transient_for=self.window,
+            heading="Measure maximum fan speed?",
+            body="The monitor scales its fan axis to the fastest speed it has "
+            "seen. Measuring that now means the axis is right from the first "
+            "reading, instead of growing under the chart as the fans spin up.\n\n"
+            "Both fans will run flat out for one minute, which is loud. You "
+            "can stop it at any time, and run it later from the main menu.",
+        )
+        dialog.add_response("later", "Not Now")
+        dialog.add_response("measure", "Measure")
+        dialog.set_response_appearance("measure", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("measure")
+        dialog.set_close_response("later")
+        dialog.connect("response", self._on_offer_response)
+        dialog.present()
+
+    def _on_offer_response(self, _dialog, response):
+        if response == "measure":
+            self.start()
+        else:
+            # Released, or the menu item would have nothing to hand out next
+            # time it is chosen.
+            self.window.calibration = None
+
+    ###########################################################################
+    # The run
+    ###########################################################################
+
+    def start(self):
+        window = self.window
+        config = window.config
+        if window.monitor is None:
+            window.calibration = None
+            return
+
+        self.restore_booster = config.cooler_booster
+        try:
+            profiles.apply_cooler_booster(window.controller, config, True)
+        except ECError as error:
+            window.calibration = None
+            window._show_error(error)
+            return
+
+        self.reading_id = window.monitor.connect("reading", self._on_reading)
+        self.timer_id = GLib.timeout_add_seconds(1, self._on_tick)
+        # A run left going when the window closes would leave the fans pinned
+        # at full speed with nothing left to turn them down.
+        self.close_id = window.connect("close-request", self._on_window_close)
+
+        self.dialog = Adw.MessageDialog(
+            transient_for=window,
+            heading="Measuring maximum fan speed",
+            body=self._progress_text(),
+        )
+        self.dialog.add_response("stop", "Stop")
+        self.dialog.set_close_response("stop")
+        self.dialog.connect("response", lambda *_: self.finish(False))
+        self.dialog.present()
+
+    def _progress_text(self):
+        seen = " · ".join(
+            f"{label} {self.peaks[key] or '—'}"
+            for key, label in (("cpu", "CPU"), ("gpu", "GPU"))
+        )
+        return (
+            "Both fans are running at full speed.\n\n"
+            f"{self.remaining} seconds remaining\n"
+            f"Fastest so far: {seen} RPM"
+        )
+
+    def _on_reading(self, _monitor, reading):
+        for key, rpm in (("cpu", reading.cpu_rpm), ("gpu", reading.gpu_rpm)):
+            self.peaks[key] = min(max(self.peaks[key], rpm), cfg.RPM_PEAK_MAX)
+
+    def _on_tick(self):
+        self.remaining -= 1
+        if self.remaining <= 0:
+            self.finish(True)
+            return GLib.SOURCE_REMOVE
+        self.dialog.set_body(self._progress_text())
+        return GLib.SOURCE_CONTINUE
+
+    def _on_window_close(self, _window):
+        self.finish(False)
+        return False  # let the close proceed
+
+    ###########################################################################
+    # Teardown
+    ###########################################################################
+
+    def finish(self, completed):
+        if self.finished:
+            return
+        self.finished = True
+        window = self.window
+
+        if self.timer_id is not None:
+            GLib.source_remove(self.timer_id)
+            self.timer_id = None
+        if self.reading_id is not None and window.monitor is not None:
+            window.monitor.disconnect(self.reading_id)
+            self.reading_id = None
+        if self.close_id is not None:
+            window.disconnect(self.close_id)
+            self.close_id = None
+        if self.dialog is not None:
+            self.dialog.close()
+            self.dialog = None
+        window.calibration = None
+
+        # Restoring the fans matters more than reporting the result, so it
+        # happens first and unconditionally.
+        try:
+            profiles.apply_cooler_booster(
+                window.controller, window.config, self.restore_booster
+            )
+        except ECError as error:
+            window._show_error(error)
+            return
+
+        if not completed:
+            window.toasts.add_toast(Adw.Toast.new("Fan measurement stopped"))
+            return
+
+        config = window.config
+        config.cpu_rpm_peak = max(config.cpu_rpm_peak, self.peaks["cpu"])
+        config.gpu_rpm_peak = max(config.gpu_rpm_peak, self.peaks["gpu"])
+        config.fan_rpm_calibrated = True
+        cfg.save(config)
+        window.note_rpm_peaks_saved()
+        if window.graph is not None:
+            window.graph.queue_draw()
+        window.toasts.add_toast(
+            Adw.Toast.new(
+                f"Maximum fan speed: {config.cpu_rpm_peak} CPU, "
+                f"{config.gpu_rpm_peak} GPU RPM"
+            )
+        )
+
+
 class FirstRunWindow(Adw.Window):
     """Replaces the two chained Gtk.Dialogs the old build used at first start.
 
@@ -158,7 +337,9 @@ class MainWindow(Adw.ApplicationWindow):
         self.graph = None
         self.curve_page = None
         self.first_run = None
+        self.calibration = None
         self._loading = False
+        self._rpm_peak_saved = 0
 
         self.toasts = Adw.ToastOverlay()
         self.navigation = Adw.NavigationView()
@@ -302,12 +483,22 @@ class MainWindow(Adw.ApplicationWindow):
         self.monitor = Monitor(self.controller, config)
         self.monitor.connect("reading", self._on_reading)
         self.monitor.connect("failed", lambda _m, error: self._show_error(error))
-        self.graph = SensorGraph(self.monitor)
+        self.graph = SensorGraph(self.monitor, config)
         self.graph_placeholder.prepend(self.graph)
+        self.note_rpm_peaks_saved()
         self.monitor.start()
         self.status_stack.set_visible_child_name("controls")
 
+        # Once, on a config that has never been asked - which includes every
+        # fresh install, since the peaks start at zero and the axis would
+        # otherwise have to learn them from an idle fan.
+        if not config.fan_rpm_calibrated and not config.fan_rpm_asked:
+            GLib.timeout_add(700, lambda: (self.calibrate_fans(), GLib.SOURCE_REMOVE)[1])
+
     def _show_error(self, error):
+        if self.calibration is not None:
+            # Whatever else is wrong, do not leave the fans pinned on.
+            self.calibration.finish(False)
         if self.monitor is not None:
             self.monitor.stop()
         title = getattr(error, "title", "Something went wrong")
@@ -438,8 +629,41 @@ class MainWindow(Adw.ApplicationWindow):
         if self.monitor is not None:
             self.monitor.reset_extremes()
 
+    def calibrate_fans(self):
+        """Offer to measure the fans' top speed. Also the main menu item."""
+        if self.config is None or self.monitor is None or self.calibration is not None:
+            return
+        self.calibration = FanCalibration(self)
+        self.calibration.offer()
+
+    def note_rpm_peaks_saved(self):
+        """Mark the stored peaks as being what is on disk."""
+        self._rpm_peak_saved = max(self.config.cpu_rpm_peak, self.config.gpu_rpm_peak)
+
+    def _record_rpm_peaks(self, reading):
+        """Raise the stored peaks to match anything faster we just saw.
+
+        A measured ceiling is the good case, but it is not the only one: a
+        machine that was never measured, or one whose fans turn out to go
+        faster than they did during the measurement, still ends up with an
+        axis that fits. Writing only once the peak has moved meaningfully
+        keeps this off the disk twice a second.
+        """
+        config = self.config
+        config.cpu_rpm_peak = min(
+            max(config.cpu_rpm_peak, reading.cpu_rpm), cfg.RPM_PEAK_MAX
+        )
+        config.gpu_rpm_peak = min(
+            max(config.gpu_rpm_peak, reading.gpu_rpm), cfg.RPM_PEAK_MAX
+        )
+        peak = max(config.cpu_rpm_peak, config.gpu_rpm_peak)
+        if peak >= self._rpm_peak_saved + 100:
+            cfg.save(config)
+            self._rpm_peak_saved = peak
+
     def _on_reading(self, monitor, reading):
         self.readings.update(monitor, reading)
+        self._record_rpm_peaks(reading)
         self.graph.queue_draw()
 
 
@@ -448,6 +672,10 @@ MENU_XML = """
 <interface>
   <menu id="primary-menu">
     <section>
+      <item>
+        <attribute name="label">Measure Maximum Fan Speed</attribute>
+        <attribute name="action">app.calibrate-fans</attribute>
+      </item>
       <item>
         <attribute name="label">Open Config Folder</attribute>
         <attribute name="action">app.open-config</attribute>
