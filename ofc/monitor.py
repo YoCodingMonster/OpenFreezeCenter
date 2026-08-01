@@ -43,6 +43,8 @@ class Monitor(GObject.Object):
         points = max(1, (HISTORY_SECONDS * 1000) // interval_ms)
         self.cpu_history = deque(maxlen=points)
         self.gpu_history = deque(maxlen=points)
+        self.cpu_rpm_history = deque(maxlen=points)
+        self.gpu_rpm_history = deque(maxlen=points)
 
         # Seeded past any real temperature so the first reading replaces them.
         self.cpu_min = self.gpu_min = 999
@@ -91,5 +93,7 @@ class Monitor(GObject.Object):
         self._record_extremes(reading)
         self.cpu_history.append(reading.cpu_temp)
         self.gpu_history.append(reading.gpu_temp)
+        self.cpu_rpm_history.append(reading.cpu_rpm)
+        self.gpu_rpm_history.append(reading.gpu_rpm)
         self.emit("reading", reading)
         return GLib.SOURCE_CONTINUE

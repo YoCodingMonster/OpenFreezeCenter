@@ -6,8 +6,9 @@ laptops on Linux, since MSI ships no Linux client of its own.
 - **Fan profiles** — Auto, Basic (the auto curve shifted by an offset) and
   Advanced (your own curve), plus Cooler Booster as an independent toggle.
 - **Fan curve editor** — set all seven CPU and seven GPU points in the app.
-- **Live monitoring** — 60 seconds of CPU/GPU temperature history, with
-  current, minimum, maximum and fan RPM.
+- **Live monitoring** — 60 seconds of CPU/GPU temperature history as lines,
+  with fan RPM shaded underneath on its own right-hand axis, and the current,
+  minimum and maximum below.
 - **Battery charge limit** — stop charging between 50% and 100%.
 
 Prefer no GUI at all? [OpenFreezeCenter-Lite](https://github.com/YoCodingMonster/OpenFreezeCenter-Lite)

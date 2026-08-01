@@ -17,11 +17,11 @@ BATTERY_CHOICES = [str(value) for value in range(cfg.BATTERY_MIN, cfg.BATTERY_MA
 
 
 class ReadingsTable(Gtk.Grid):
-    """The numeric view of what the graph plots, plus fan RPM.
+    """The numeric view of what the graph plots.
 
-    RPM is deliberately a number rather than a second line on the chart: it is
-    a different quantity on a different scale, and overlaying it would mean a
-    second y-axis.
+    The chart carries the shape of the last minute; this carries the exact
+    current value, and the running minimum and maximum, which a sixty-second
+    window cannot show.
     """
 
     COLUMNS = ("Now", "Min", "Max", "Fan")

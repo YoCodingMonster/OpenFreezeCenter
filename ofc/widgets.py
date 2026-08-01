@@ -9,6 +9,11 @@ entity: slot 1 blue for the CPU, slot 2 orange for the GPU, never cycled.
 The pair is validated against the Adwaita card surface in both modes —
 worst adjacent CVD ΔE 24.7 light / 26.8 dark, normal-vision 33.6 / 31.8,
 both series at or above 3:1 contrast.
+
+Fan speed shares the sensor chart with temperature but not its axis: it is
+a filled area read against a second scale on the right. Encoding it as a
+tint of the same series colour keeps one colour per entity, and the change
+of form — fill against line — is what separates the two quantities.
 """
 
 import gi
@@ -32,13 +37,27 @@ INK = {
     "surface": ("#ffffff", "#353535"),
 }
 
+# The fan areas are the same colours held well back. The fill is faint on
+# purpose: two of them overlap for most of the plot, and anything stronger
+# blends into one mass that reads as a third colour and buries the
+# temperature lines. What carries a fan series is its stroked top edge, so
+# that is where the weight goes; the fill only says which side is under it.
+FILL_ALPHA = (0.11, 0.15)
+EDGE_ALPHA = (0.70, 0.75)
+SWATCH_ALPHA = 0.45
+
 TEMP_MAX = 100.0
 GRID_STEPS = (0, 25, 50, 75, 100)
 
+# The RPM axis is quantised to this so its labels stay round numbers, and it
+# only ever grows, so a fan crossing a boundary cannot make the axis flap.
+RPM_STEP = 2000
 
-def _rgba(hex_colour):
+
+def _rgba(hex_colour, alpha=1.0):
     colour = Gdk.RGBA()
     colour.parse(hex_colour)
+    colour.alpha = alpha
     return colour
 
 
@@ -71,6 +90,33 @@ def _polyline(snapshot, points, colour, width=2.0):
     for point in points[1:]:
         builder.line_to(*point)
     snapshot.append_stroke(builder.to_path(), _stroke(width), _rgba(colour))
+
+
+def _area(snapshot, points, baseline, colour, fill_alpha, edge_alpha):
+    """Fill a series down to `baseline`, then stroke its top edge."""
+    if len(points) < 2:
+        return
+    builder = Gsk.PathBuilder.new()
+    builder.move_to(points[0][0], baseline)
+    for point in points:
+        builder.line_to(*point)
+    builder.line_to(points[-1][0], baseline)
+    builder.close()
+    snapshot.append_fill(
+        builder.to_path(), Gsk.FillRule.WINDING, _rgba(colour, fill_alpha)
+    )
+
+    edge = Gsk.PathBuilder.new()
+    edge.move_to(*points[0])
+    for point in points[1:]:
+        edge.line_to(*point)
+    snapshot.append_stroke(edge.to_path(), _stroke(1.25), _rgba(colour, edge_alpha))
+
+
+def _rect(snapshot, x, y, width, height, colour, alpha=1.0):
+    builder = Gsk.PathBuilder.new()
+    builder.add_rect(Graphene.Rect().init(x, y, width, height))
+    snapshot.append_fill(builder.to_path(), Gsk.FillRule.WINDING, _rgba(colour, alpha))
 
 
 def _hline(snapshot, x1, x2, y, colour):
@@ -118,18 +164,31 @@ class _ChartBase(Gtk.Widget):
 
 
 class SensorGraph(_ChartBase):
-    """Sixty seconds of CPU and GPU temperature on one shared 0–100 °C axis.
+    """Sixty seconds of CPU and GPU temperature and fan speed.
 
-    Both series measure the same quantity in the same unit, so they share a
-    single axis. Fan RPM is a different quantity on a different scale and
-    stays in the table below rather than becoming a second y-axis here.
+    Temperature is a line on the left 0–100 °C axis: both series measure the
+    same quantity in the same unit, so they share it. Fan speed is a
+    different quantity on a different scale, so it gets the right-hand RPM
+    axis and a different form — a filled area, held back far enough that the
+    temperature lines stay the foreground of the chart.
     """
 
     def __init__(self, monitor):
         super().__init__()
         self.monitor = monitor
+        self._rpm_ceiling = RPM_STEP
         self.set_size_request(-1, 168)
         self.set_hexpand(True)
+
+    def _fan_ceiling(self):
+        """The RPM axis top: a round number that only ever grows."""
+        peak = max(
+            max(self.monitor.cpu_rpm_history, default=0),
+            max(self.monitor.gpu_rpm_history, default=0),
+        )
+        needed = -(-peak // RPM_STEP) * RPM_STEP
+        self._rpm_ceiling = max(self._rpm_ceiling, needed)
+        return self._rpm_ceiling
 
     def do_snapshot(self, snapshot):
         width = self.get_width()
@@ -139,16 +198,36 @@ class SensorGraph(_ChartBase):
 
         ink_secondary = ink("secondary")
         ink_primary = ink("primary")
+        dark = _is_dark()
 
-        left, right, top, bottom = 36, 56, 26, 16
+        # The right margin carries two things side by side: the temperature
+        # value at the end of each line, then the RPM axis beyond it.
+        left, right, top, bottom = 36, 78, 26, 18
         plot_width = max(1, width - left - right)
         plot_height = max(1, height - top - bottom)
+        baseline = top + plot_height
+        fan_ceiling = self._fan_ceiling()
 
-        # Grid: hairline, recessive, labelled in muted ink.
+        # Grid: hairline, recessive, labelled in muted ink. One set of rules
+        # for both axes, so neither scale implies gridlines the other lacks.
         for step in GRID_STEPS:
             y = top + plot_height * (1 - step / TEMP_MAX)
             _hline(snapshot, left, left + plot_width, y, ink("grid"))
             self._text(snapshot, left - 8, y, f"{step}", ink_secondary, 8, "right")
+            self._text(
+                snapshot,
+                width - 4,
+                y,
+                f"{int(fan_ceiling * step / 100)}",
+                ink_secondary,
+                8,
+                "right",
+            )
+
+        # Which number belongs to which axis, said once at the foot of each.
+        unit_y = baseline + 11
+        self._text(snapshot, left - 8, unit_y, "°C", ink_secondary, 8, "right")
+        self._text(snapshot, width - 4, unit_y, "RPM", ink_secondary, 8, "right")
 
         series = (
             ("cpu", "CPU", self.monitor.cpu_history),
@@ -164,7 +243,48 @@ class SensorGraph(_ChartBase):
             )
             legend_x += 14 + text_width + 18
 
+        # ... and one more entry for the form, since the areas repeat the
+        # series colours rather than introducing any of their own.
+        fan_width, _ = self._text(
+            snapshot, width - 4, top - 14, "fan", ink_secondary, 8, "right"
+        )
+        fan_x = width - 4 - fan_width
+        for index, key in enumerate(("cpu", "gpu")):
+            _rect(
+                snapshot,
+                fan_x - 22 + index * 9,
+                top - 18,
+                9,
+                9,
+                series_colour(key),
+                SWATCH_ALPHA,
+            )
+
         capacity = self.monitor.cpu_history.maxlen or 1
+
+        # Areas first: the lines cross them and have to stay legible.
+        for key, history in (
+            ("cpu", self.monitor.cpu_rpm_history),
+            ("gpu", self.monitor.gpu_rpm_history),
+        ):
+            if not history:
+                continue
+            points = [
+                (
+                    left + plot_width * (index / max(1, capacity - 1)),
+                    baseline - plot_height * min(value / fan_ceiling, 1.0),
+                )
+                for index, value in enumerate(history)
+            ]
+            _area(
+                snapshot,
+                points,
+                baseline,
+                series_colour(key),
+                FILL_ALPHA[dark],
+                EDGE_ALPHA[dark],
+            )
+
         endpoints = []
         for key, _label, history in series:
             if not history:
