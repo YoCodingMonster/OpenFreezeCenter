@@ -23,6 +23,8 @@ gi.require_version("Gsk", "4.0")
 gi.require_version("Graphene", "1.0")
 from gi.repository import Adw, Gdk, Graphene, Gsk, Gtk, Pango
 
+from .style import chart_height
+
 # (light, dark) steps per series.
 SERIES_COLORS = {
     "cpu": ("#2a78d6", "#3987e5"),
@@ -177,7 +179,8 @@ class SensorGraph(_ChartBase):
         super().__init__()
         self.monitor = monitor
         self.config = config
-        self.set_size_request(-1, 168)
+        # 26 above for the legend, 18 below for the unit labels; see do_snapshot.
+        self.set_size_request(-1, chart_height(168, 26 + 18))
         self.set_hexpand(True)
 
     def _fan_ceiling(self):
@@ -291,16 +294,38 @@ class SensorGraph(_ChartBase):
             if not history:
                 continue
             colour = series_colour(key)
-            points = [
-                (
-                    left + plot_width * (index / max(1, capacity - 1)),
-                    top + plot_height * (1 - min(value, TEMP_MAX) / TEMP_MAX),
+            # A history can have holes in it: a discrete GPU that powers down
+            # reports no temperature at all, and that is not the same as
+            # reporting a low one. Each unbroken run is drawn as its own line
+            # so the gap stays a gap, rather than a segment joining the
+            # temperature before the GPU slept to the one after it woke.
+            runs = []
+            run = []
+            for index, value in enumerate(history):
+                if value is None:
+                    if run:
+                        runs.append(run)
+                        run = []
+                    continue
+                run.append(
+                    (
+                        left + plot_width * (index / max(1, capacity - 1)),
+                        top + plot_height * (1 - min(value, TEMP_MAX) / TEMP_MAX),
+                    )
                 )
-                for index, value in enumerate(history)
-            ]
-            _polyline(snapshot, points, colour, 2.0)
-            _dot(snapshot, points[-1][0], points[-1][1], 4, colour)
-            endpoints.append([points[-1][0], points[-1][1], int(history[-1])])
+            if run:
+                runs.append(run)
+
+            for run in runs:
+                _polyline(snapshot, run, colour, 2.0)
+
+            # The head of the line is only a current reading if the series is
+            # still reporting; a run that ended when the GPU slept gets no
+            # marker and no direct label.
+            if runs and history[-1] is not None:
+                head = runs[-1][-1]
+                _dot(snapshot, head[0], head[1], 4, colour)
+                endpoints.append([head[0], head[1], int(history[-1])])
 
         # Direct labels: a colour-carrying dot on the line, the number in plain
         # ink beside it. When the two series finish at similar temperatures the
@@ -323,7 +348,8 @@ class CurvePreview(_ChartBase):
         super().__init__()
         self.cpu = []
         self.gpu = []
-        self.set_size_request(-1, 156)
+        # 26 above for the legend, 26 below for the point numbers.
+        self.set_size_request(-1, chart_height(156, 26 + 26))
         self.set_hexpand(True)
 
     def set_curves(self, cpu, gpu):

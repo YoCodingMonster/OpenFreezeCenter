@@ -8,9 +8,11 @@ from gi.repository import Adw, Gtk, GLib
 
 from . import config as cfg
 from . import profiles
+from . import style
 from .curve_editor import CurveEditorPage
 from .ec import ECError
 from .monitor import Monitor
+from .section import Section
 from .widgets import LegendSwatch, SensorGraph
 
 BATTERY_CHOICES = [str(value) for value in range(cfg.BATTERY_MIN, cfg.BATTERY_MAX + 1, 5)]
@@ -27,7 +29,7 @@ class ReadingsTable(Gtk.Grid):
     COLUMNS = ("Now", "Min", "Max", "Fan")
 
     def __init__(self):
-        super().__init__(column_spacing=6, row_spacing=6)
+        super().__init__(column_spacing=style.px(6), row_spacing=style.px(6))
         self.set_column_homogeneous(True)
         self.cells = {}
 
@@ -38,7 +40,7 @@ class ReadingsTable(Gtk.Grid):
             self.attach(label, index + 1, 0, 1, 1)
 
         for row, (key, name) in enumerate((("cpu", "CPU"), ("gpu", "GPU")), start=1):
-            heading = Gtk.Box(spacing=8)
+            heading = Gtk.Box(spacing=style.px(8))
             heading.append(LegendSwatch(key))
             title = Gtk.Label(label=name, xalign=0.0)
             title.add_css_class("heading")
@@ -58,9 +60,12 @@ class ReadingsTable(Gtk.Grid):
             ("gpu", reading.gpu_temp, monitor.gpu_min, monitor.gpu_max, reading.gpu_rpm),
         )
         for key, now, low, high, rpm in pairs:
-            self.cells[(key, "now")].set_label(f"{now}°C")
+            # "off" rather than 0 °C: a discrete GPU that is powered down has
+            # no temperature, and the same word already stands for a fan that
+            # is not turning.
+            self.cells[(key, "now")].set_label(f"{now}°C" if now is not None else "off")
             self.cells[(key, "min")].set_label(f"{low}°C" if low < 999 else "—")
-            self.cells[(key, "max")].set_label(f"{high}°C")
+            self.cells[(key, "max")].set_label(f"{high}°C" if high else "—")
             self.cells[(key, "rpm")].set_label(f"{rpm}" if rpm else "off")
 
 
@@ -255,9 +260,15 @@ class FirstRunWindow(Adw.Window):
             transient_for=parent,
             modal=True,
             title="Set up Open Freeze Center",
-            default_width=580,
-            default_height=520,
+            # The assistant is a page of prose with two rows under it, and
+            # prose did not shrink — only the gaps around it did. So the
+            # width takes the 60% and the height is what the text needs at
+            # that width, rather than 60% of what it needed at the old one.
+            # It is asked once, and both choices have to be on screen.
+            default_width=style.px(580),
+            default_height=380,
         )
+        self.add_css_class("ofc-compact")
         self.controller = controller
         self.on_finished = on_finished
 
@@ -328,9 +339,12 @@ class MainWindow(Adw.ApplicationWindow):
         super().__init__(
             application=application,
             title="Open Freeze Center",
-            default_width=560,
-            default_height=800,
+            default_width=style.px(560),
+            # No default height. The window takes the height of whatever it
+            # is showing, which is the point of sections that fold away; see
+            # _fit_to_content.
         )
+        self.add_css_class("ofc-compact")
         self.controller = controller
         self.config = None
         self.monitor = None
@@ -339,6 +353,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.first_run = None
         self.calibration = None
         self._loading = False
+        self._fit_queued = False
         self._rpm_peak_saved = 0
 
         self.toasts = Adw.ToastOverlay()
@@ -361,7 +376,9 @@ class MainWindow(Adw.ApplicationWindow):
         menu.set_menu_model(model)
         header.pack_end(menu)
 
-        self.status_stack = Gtk.Stack()
+        # Not homogeneous: a stack sized to its tallest child would hold the
+        # window open at the height of the error page nobody is looking at.
+        self.status_stack = Gtk.Stack(hhomogeneous=False, vhomogeneous=False)
         self.status_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
         self.status_stack.add_named(self._build_controls(), "controls")
         self.status_stack.add_named(Adw.StatusPage(), "error")
@@ -369,13 +386,30 @@ class MainWindow(Adw.ApplicationWindow):
         toolbar = Adw.ToolbarView()
         toolbar.add_top_bar(header)
         toolbar.set_content(self.status_stack)
-        return Adw.NavigationPage(child=toolbar, title="Open Freeze Center")
+
+        page = Adw.NavigationPage(child=toolbar, title="Open Freeze Center")
+        # ::shown, not the view's ::notify::visible-page, which fires as the
+        # transition starts and would measure the page being navigated away
+        # from.
+        page.connect("shown", self._queue_fit)
+        return page
 
     def _build_controls(self):
-        page = Adw.PreferencesPage()
+        # Adw.PreferencesPage takes preferences groups and nothing else, so the
+        # page it would have built is assembled here instead: the same clamp,
+        # the same margins, the same gap between groups, all at the compact
+        # scale, with a collapsible Section in place of each group.
+        page = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=style.SECTION_SPACING
+        )
+        page.set_margin_top(style.PAGE_MARGIN)
+        page.set_margin_bottom(style.PAGE_MARGIN)
+        page.set_margin_start(style.PAGE_MARGIN)
+        page.set_margin_end(style.PAGE_MARGIN)
 
         # -- Cooling -----------------------------------------------------------
-        cooling = Adw.PreferencesGroup(title="Cooling")
+        cooling = Section("Cooling")
+        self.cooling_section = cooling
 
         self.profile_row = Adw.ComboRow(
             title="Fan profile",
@@ -408,10 +442,11 @@ class MainWindow(Adw.ApplicationWindow):
         self.booster_row.connect("notify::active", self._on_booster_changed)
         cooling.add(self.booster_row)
 
-        page.add(cooling)
+        page.append(cooling)
 
         # -- Monitoring --------------------------------------------------------
-        monitoring = Adw.PreferencesGroup(title="Monitoring")
+        monitoring = Section("Monitoring")
+        self.monitoring_section = monitoring
 
         reset = Gtk.Button(label="Reset")
         reset.set_tooltip_text("Forget the recorded minimum and maximum")
@@ -419,21 +454,22 @@ class MainWindow(Adw.ApplicationWindow):
         reset.connect("clicked", self._on_reset_extremes)
         monitoring.set_header_suffix(reset)
 
-        chart_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        chart_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=style.px(14))
         chart_box.add_css_class("card")
         chart_box.add_css_class("ofc-chart")
         self.graph_placeholder = chart_box
         self.readings = ReadingsTable()
         chart_box.append(self.readings)
         monitoring.add(chart_box)
-        page.add(monitoring)
+        page.append(monitoring)
 
         # -- Battery -----------------------------------------------------------
-        battery = Adw.PreferencesGroup(
-            title="Battery",
+        battery = Section(
+            "Battery",
             description="Stopping short of a full charge slows down long-term "
             "battery wear.",
         )
+        self.battery_section = battery
         self.battery_row = Adw.ComboRow(
             title="Charge limit",
             subtitle="Percent",
@@ -441,9 +477,54 @@ class MainWindow(Adw.ApplicationWindow):
         )
         self.battery_row.connect("notify::selected", self._on_battery_changed)
         battery.add(self.battery_row)
-        page.add(battery)
+        page.append(battery)
 
-        return page
+        for section in (cooling, monitoring, battery):
+            section.connect("resized", self._queue_fit)
+
+        self._update_summaries()
+
+        clamp = Adw.Clamp(maximum_size=style.CLAMP_WIDTH, child=page)
+        # propagate-natural-height is what carries the content's height out
+        # to the window. Without it a scroller asks for almost nothing and
+        # the window has no size to take.
+        return Gtk.ScrolledWindow(
+            hscrollbar_policy=Gtk.PolicyType.NEVER,
+            propagate_natural_height=True,
+            vexpand=True,
+            child=clamp,
+        )
+
+    def _queue_fit(self, *_args):
+        """Retake the window's height once the layout has settled.
+
+        From an idle, and only once per round of changes, because the caller
+        has usually just shown or hidden something and the natural height it
+        would measure right now is the one it is on its way out of.
+        """
+        if self._fit_queued:
+            return
+        self._fit_queued = True
+        GLib.idle_add(self._fit_to_content, priority=GLib.PRIORITY_LOW)
+
+    def _fit_to_content(self):
+        """Take the height of whatever is on screen, keeping the width.
+
+        GTK sizes a window to its content once, when it is first mapped, and
+        after that will grow it but never shrink it. Handing it a fresh
+        default size with the height left open — the width pinned to what it
+        already is, so this never fights a horizontal resize — makes it
+        measure again and follow, which is what a window whose sections fold
+        away has to do for the folding to be worth anything.
+
+        A window the user has maximised or filled the screen with is theirs,
+        and one that has not been mapped has no width worth keeping.
+        """
+        self._fit_queued = False
+        if not self.get_mapped() or self.is_maximized() or self.is_fullscreen():
+            return GLib.SOURCE_REMOVE
+        self.set_default_size(self.get_width(), -1)
+        return GLib.SOURCE_REMOVE
 
     ###########################################################################
     # Start-up
@@ -488,6 +569,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.note_rpm_peaks_saved()
         self.monitor.start()
         self.status_stack.set_visible_child_name("controls")
+        self._queue_fit()
 
         # Once, on a config that has never been asked - which includes every
         # fresh install, since the peaks start at zero and the axis would
@@ -522,6 +604,7 @@ class MainWindow(Adw.ApplicationWindow):
             self.status_stack.remove(old)
         self.status_stack.add_named(status, "error")
         self.status_stack.set_visible_child_name("error")
+        self._queue_fit()
 
     def _retry(self):
         if self.monitor is not None:
@@ -552,6 +635,8 @@ class MainWindow(Adw.ApplicationWindow):
         except ValueError:
             self.battery_row.set_selected(len(BATTERY_CHOICES) - 1)
         self._loading = False
+        self._update_summaries()
+        self._queue_fit()
 
     def _persist_and_apply(self, message=None):
         cfg.save(self.config)
@@ -562,6 +647,48 @@ class MainWindow(Adw.ApplicationWindow):
             return
         if message:
             self.toasts.add_toast(Adw.Toast.new(message))
+
+    ###########################################################################
+    # Section summaries
+    ###########################################################################
+
+    def _update_summaries(self, reading=None):
+        """Restate each section as the one line its collapsed header shows.
+
+        Everything a closed section holds has to be legible from this, or
+        closing it would cost the user information rather than space. The
+        monitoring line is the one that moves, so it is refreshed from the
+        reading itself; the other two change only when a setting does.
+        """
+        config = self.config
+        if config is None:
+            for section in (
+                self.cooling_section,
+                self.monitoring_section,
+                self.battery_section,
+            ):
+                section.set_summary("Starting up…")
+            return
+
+        profile = profiles.PROFILE_LABELS[config.profile]
+        if config.profile == cfg.PROFILE_BASIC:
+            profile += f" {config.basic_offset:+d}%"
+        self.cooling_section.set_summary(
+            f"{profile} · Booster {'on' if config.cooler_booster else 'off'}"
+        )
+
+        if reading is not None:
+            gpu = f"{reading.gpu_temp}°" if reading.gpu_temp is not None else "off"
+            self.monitoring_section.set_summary(
+                f"CPU {reading.cpu_temp}° · GPU {gpu} · "
+                f"{reading.cpu_rpm}/{reading.gpu_rpm} RPM"
+            )
+        elif self.monitor is None or self.monitor.latest is None:
+            self.monitoring_section.set_summary("Waiting for the first reading…")
+
+        self.battery_section.set_summary(
+            f"Charging stops at {config.battery_threshold}%"
+        )
 
     ###########################################################################
     # Handlers
@@ -580,12 +707,14 @@ class MainWindow(Adw.ApplicationWindow):
         if self._loading or self.config is None:
             return
         self.config.basic_offset = int(row.get_value())
+        self._update_summaries()
         self._persist_and_apply()
 
     def _on_booster_changed(self, row, _param):
         if self._loading or self.config is None:
             return
         self.config.cooler_booster = row.get_active()
+        self._update_summaries()
         cfg.save(self.config)
         try:
             profiles.apply_cooler_booster(
@@ -604,6 +733,7 @@ class MainWindow(Adw.ApplicationWindow):
         if self._loading or self.config is None:
             return
         self.config.battery_threshold = int(BATTERY_CHOICES[row.get_selected()])
+        self._update_summaries()
         cfg.save(self.config)
         try:
             profiles.apply_battery_threshold(
@@ -621,6 +751,7 @@ class MainWindow(Adw.ApplicationWindow):
             return
         if self.curve_page is None:
             self.curve_page = CurveEditorPage(self.config, self._persist_and_apply)
+            self.curve_page.connect("shown", self._queue_fit)
         else:
             self.curve_page.refresh()
         self.navigation.push(self.curve_page)
@@ -663,6 +794,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _on_reading(self, monitor, reading):
         self.readings.update(monitor, reading)
+        self._update_summaries(reading)
         self._record_rpm_peaks(reading)
         self.graph.queue_draw()
 

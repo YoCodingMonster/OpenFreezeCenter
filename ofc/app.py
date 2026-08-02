@@ -14,6 +14,7 @@ from gi.repository import Adw, Gio, Gtk, Gdk
 
 from . import config as cfg
 from .ec import EmbeddedController, SimulatedController
+from .style import STYLE
 from .window import MainWindow
 
 APP_ID = "io.github.yocodingmonster.OpenFreezeCenter"
@@ -30,15 +31,8 @@ ISSUE_URL = "https://github.com/YoCodingMonster/OpenFreezeCenter/issues"
 REQUIRED_ADW = (1, 4)
 REQUIRED_GTK = (4, 14)
 
-STYLE = """
-.ofc-chart {
-    padding: 14px;
-}
-.ofc-reading {
-    font-family: monospace;
-    font-size: 1.05em;
-}
-"""
+# The stylesheet, and the 60% metric scale it is generated from, live in
+# ofc.style.
 
 # Handed through to the user's session so xdg-open can find the display.
 SESSION_VARIABLES = ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY")

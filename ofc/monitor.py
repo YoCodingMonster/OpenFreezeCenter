@@ -14,7 +14,16 @@ HISTORY_SECONDS = 60
 
 
 class Reading:
-    """One poll: temperatures in °C, fan speeds in RPM."""
+    """One poll: temperatures in °C, fan speeds in RPM.
+
+    `gpu_temp` is None when there is no reading to be had. On a laptop with
+    switchable graphics the discrete GPU spends most of its life powered
+    down, and the EC reads a chip that is not running back as zero. Zero is
+    not a temperature anything reports, so it is carried as an absence
+    rather than plotted as if the GPU were extremely cold — which would
+    otherwise drag the chart line to the floor and hold the recorded minimum
+    at 0 °C forever.
+    """
 
     __slots__ = ("cpu_temp", "gpu_temp", "cpu_rpm", "gpu_rpm")
 
@@ -70,8 +79,9 @@ class Monitor(GObject.Object):
     def _record_extremes(self, reading):
         self.cpu_min = min(self.cpu_min, reading.cpu_temp)
         self.cpu_max = max(self.cpu_max, reading.cpu_temp)
-        self.gpu_min = min(self.gpu_min, reading.gpu_temp)
-        self.gpu_max = max(self.gpu_max, reading.gpu_temp)
+        if reading.gpu_temp is not None:
+            self.gpu_min = min(self.gpu_min, reading.gpu_temp)
+            self.gpu_max = max(self.gpu_max, reading.gpu_temp)
 
     def _tick(self):
         hardware = self.config.hardware
@@ -82,9 +92,10 @@ class Monitor(GObject.Object):
             self.emit("failed", error)
             return GLib.SOURCE_REMOVE
 
+        gpu_temp = snapshot[hardware.gpu_temp_address]
         reading = Reading(
             cpu_temp=snapshot[hardware.cpu_temp_address],
-            gpu_temp=snapshot[hardware.gpu_temp_address],
+            gpu_temp=gpu_temp if gpu_temp else None,
             cpu_rpm=rpm_from_period(u16(snapshot, hardware.cpu_rpm_address)),
             gpu_rpm=rpm_from_period(u16(snapshot, hardware.gpu_rpm_address)),
         )
