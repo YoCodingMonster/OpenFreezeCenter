@@ -69,7 +69,23 @@ EDGE_ALPHA = (0.70, 0.75)
 SWATCH_ALPHA = 0.45
 
 TEMP_MAX = 100.0
+
+# Quarters, used for the rules in both directions: across, they are quarters
+# of each scale; down, quarters of the minute on screen.
 GRID_STEPS = (0, 25, 50, 75, 100)
+
+# The white space around the labels, in the order it is laid out: between an
+# axis label and the plot it annotates, between the head of a line and the
+# value printed beside it, between that value and the axis beyond it, and
+# between an axis label and the edge of the widget. The margins themselves
+# are not constants — they are measured from the labels that have to fit in
+# them — because a fixed guess has to assume the widest label any scale
+# might produce and then leaves that assumption as an empty channel of plot
+# whenever the real ones are shorter.
+AXIS_GUTTER = 6
+HEAD_OFFSET = 6
+HEAD_GUTTER = 6
+EDGE_PAD = 3
 
 # The scaled axes are quantised up to a multiple of these, which keeps both
 # the ceiling and the quarter-way gridline labels round whatever the peak is.
@@ -146,6 +162,13 @@ def _hline(snapshot, x1, x2, y, colour):
     builder = Gsk.PathBuilder.new()
     builder.move_to(x1, y)
     builder.line_to(x2, y)
+    snapshot.append_stroke(builder.to_path(), Gsk.Stroke.new(1.0), _rgba(colour))
+
+
+def _vline(snapshot, x, y1, y2, colour):
+    builder = Gsk.PathBuilder.new()
+    builder.move_to(x, y1)
+    builder.line_to(x, y2)
     snapshot.append_stroke(builder.to_path(), Gsk.Stroke.new(1.0), _rgba(colour))
 
 
@@ -248,6 +271,13 @@ class SensorGraph(_ChartBase):
             return f"{value:g}"
         return f"{int(value)}"
 
+    def _tick_width(self, metric, ceiling):
+        """How much room this axis's gridline labels actually need."""
+        return max(
+            self._label(self._tick(metric, ceiling * step / 100), 8)[1][0]
+            for step in GRID_STEPS
+        )
+
     def _head(self, metric, value):
         """The direct label at the head of a line, which carries its unit."""
         if metric == cfg.METRIC_TEMP:
@@ -299,9 +329,23 @@ class SensorGraph(_ChartBase):
         left_ceiling = self._ceiling(left_metric)
         right_ceiling = self._ceiling(right_metric)
 
-        # The right margin carries two things side by side: the value at the
-        # head of each line, then the right-hand axis beyond it.
-        left, right, top, bottom = 36, 78, 26, 18
+        # Both side margins are measured from what has to go in them. The
+        # right one carries two things side by side — the value at the head
+        # of a line, then the right-hand axis beyond it — and is sized from
+        # the widest label each of those can produce, which is the top of its
+        # own scale, rather than from what they happen to read this second.
+        # Sizing it from the current reading would shift the whole plot
+        # sideways every time a number gained or lost a digit.
+        head_width = self._label(self._head(left_metric, left_ceiling), 9)[1][0]
+        left = self._tick_width(left_metric, left_ceiling) + AXIS_GUTTER
+        right = (
+            HEAD_OFFSET
+            + head_width
+            + HEAD_GUTTER
+            + self._tick_width(right_metric, right_ceiling)
+            + EDGE_PAD
+        )
+        top, bottom = 26, 18
         plot_width = max(1, width - left - right)
         plot_height = max(1, height - top - bottom)
         baseline = top + plot_height
@@ -315,7 +359,7 @@ class SensorGraph(_ChartBase):
             _hline(snapshot, left, left + plot_width, y, ink("grid"))
             self._text(
                 snapshot,
-                left - 8,
+                left - AXIS_GUTTER,
                 y,
                 self._tick(left_metric, left_ceiling * step / 100),
                 ink_secondary,
@@ -324,7 +368,7 @@ class SensorGraph(_ChartBase):
             )
             self._text(
                 snapshot,
-                width - 4,
+                width - EDGE_PAD,
                 y,
                 self._tick(right_metric, right_ceiling * step / 100),
                 ink_secondary,
@@ -332,11 +376,21 @@ class SensorGraph(_ChartBase):
                 "right",
             )
 
+        # The same rules the other way, so the plot is a grid rather than a
+        # set of shelves. These carry no labels: the horizontal axis is one
+        # minute of history and always has been, so what the quarters mark is
+        # a quarter of a minute, and four numbers saying so would be four
+        # numbers the chart never needed.
+        for step in GRID_STEPS:
+            _vline(
+                snapshot, left + plot_width * step / 100, top, baseline, ink("grid")
+            )
+
         # Which number belongs to which axis, said once at the foot of each.
         unit_y = baseline + 11
         self._text(
             snapshot,
-            left - 8,
+            left - AXIS_GUTTER,
             unit_y,
             METRIC_UNITS[left_metric],
             ink_secondary,
@@ -345,7 +399,7 @@ class SensorGraph(_ChartBase):
         )
         self._text(
             snapshot,
-            width - 4,
+            width - EDGE_PAD,
             unit_y,
             METRIC_UNITS[right_metric],
             ink_secondary,
@@ -367,9 +421,9 @@ class SensorGraph(_ChartBase):
 
         area_name = METRIC_SHORT[right_metric]
         name_width, _ = self._text(
-            snapshot, width - 4, top - 14, area_name, ink_secondary, 8, "right"
+            snapshot, width - EDGE_PAD, top - 14, area_name, ink_secondary, 8, "right"
         )
-        swatch_x = width - 4 - name_width - 4
+        swatch_x = width - EDGE_PAD - name_width - 4
         for index, key in enumerate(("cpu", "gpu")):
             _rect(
                 snapshot,
@@ -425,7 +479,7 @@ class SensorGraph(_ChartBase):
             endpoints[1][1] = middle + minimum_gap / 2
         for x, y, text in endpoints:
             y = min(max(y, 8), height - 8)
-            self._text(snapshot, x + 9, y, text, ink_primary, 9)
+            self._text(snapshot, x + HEAD_OFFSET, y, text, ink_primary, 9)
 
 
 class CurvePreview(_ChartBase):
