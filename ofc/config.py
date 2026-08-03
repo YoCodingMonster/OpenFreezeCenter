@@ -26,7 +26,18 @@ BATTERY_MAX = 100
 # the scale of the chart it feeds.
 RPM_PEAK_MAX = 12000
 
-CONFIG_VERSION = 3
+# The same protection for the power axis, which is scaled the same way.
+WATT_PEAK_MAX = 400
+
+CONFIG_VERSION = 4
+
+# What the chart can plot. Two of the three are shown at a time, one against
+# each axis: the left one as a line, the right one as a filled area. Which is
+# which is the user's choice, so these names are stored rather than assumed.
+METRIC_TEMP = "temperature"
+METRIC_WATTS = "power"
+METRIC_FAN = "fan"
+METRIC_ORDER = (METRIC_TEMP, METRIC_WATTS, METRIC_FAN)
 
 PROFILE_AUTO = "auto"
 PROFILE_BASIC = "basic"
@@ -68,6 +79,27 @@ def _rpm_peak(value):
         return _clamp(int(value), 0, RPM_PEAK_MAX)
     except (TypeError, ValueError):
         return 0
+
+
+def _watt_peak(value):
+    """The same, for the power axis, which keeps its fraction of a watt."""
+    try:
+        return float(_clamp(float(value), 0, WATT_PEAK_MAX))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _axes(left, right):
+    """Two different metrics, whatever was stored.
+
+    A file naming the same metric twice, or naming one that no longer
+    exists, would otherwise leave the chart drawing one quantity against
+    itself on both axes.
+    """
+    left = left if left in METRIC_ORDER else METRIC_TEMP
+    if right not in METRIC_ORDER or right == left:
+        right = next(metric for metric in METRIC_ORDER if metric != left)
+    return left, right
 
 
 def _speed_list(values, fallback):
@@ -127,6 +159,18 @@ class Config:
     # at, instead of growing under the plot while the fans spin up.
     cpu_rpm_peak: int = 0
     gpu_rpm_peak: int = 0
+    # The same, for the power axis. Neither chip publishes a usable ceiling —
+    # this machine's RAPL package limit reads 200 W, which no laptop draws —
+    # so the axis is scaled from what has actually been seen, exactly as the
+    # fan axis is.
+    cpu_watt_peak: float = 0.0
+    gpu_watt_peak: float = 0.0
+
+    # Which metric is drawn against which axis. The left one is a line, the
+    # right one a filled area; the defaults are the pairing the chart had
+    # before either was a choice.
+    graph_left: str = METRIC_TEMP
+    graph_right: str = METRIC_FAN
     # True once the peaks came from a deliberate full-speed measurement
     # rather than from whatever happened to be observed. `fan_rpm_asked`
     # records that the offer to measure has been made, so declining it once
@@ -138,6 +182,7 @@ class Config:
 
     def normalised(self):
         """Return a copy with every field forced into its valid range."""
+        left, right = _axes(self.graph_left, self.graph_right)
         return replace(
             self,
             profile=self.profile if self.profile in PROFILE_ORDER else PROFILE_AUTO,
@@ -152,6 +197,10 @@ class Config:
             ),
             cpu_rpm_peak=_rpm_peak(self.cpu_rpm_peak),
             gpu_rpm_peak=_rpm_peak(self.gpu_rpm_peak),
+            cpu_watt_peak=_watt_peak(self.cpu_watt_peak),
+            gpu_watt_peak=_watt_peak(self.gpu_watt_peak),
+            graph_left=left,
+            graph_right=right,
             fan_rpm_calibrated=bool(self.fan_rpm_calibrated),
             fan_rpm_asked=bool(self.fan_rpm_asked),
         )

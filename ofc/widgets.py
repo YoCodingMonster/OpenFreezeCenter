@@ -23,7 +23,27 @@ gi.require_version("Gsk", "4.0")
 gi.require_version("Graphene", "1.0")
 from gi.repository import Adw, Gdk, Graphene, Gsk, Gtk, Pango
 
+from . import config as cfg
 from .style import chart_height
+
+# What each metric is called, in the three lengths the interface needs: the
+# name in a settings row, the unit at the foot of an axis, and the short word
+# in the chart legend where there is room for one word and no more.
+METRIC_NAMES = {
+    cfg.METRIC_TEMP: "Temperature",
+    cfg.METRIC_WATTS: "Power draw",
+    cfg.METRIC_FAN: "Fan speed",
+}
+METRIC_UNITS = {
+    cfg.METRIC_TEMP: "°C",
+    cfg.METRIC_WATTS: "W",
+    cfg.METRIC_FAN: "RPM",
+}
+METRIC_SHORT = {
+    cfg.METRIC_TEMP: "temp",
+    cfg.METRIC_WATTS: "watts",
+    cfg.METRIC_FAN: "fan",
+}
 
 # (light, dark) steps per series.
 SERIES_COLORS = {
@@ -51,9 +71,10 @@ SWATCH_ALPHA = 0.45
 TEMP_MAX = 100.0
 GRID_STEPS = (0, 25, 50, 75, 100)
 
-# The RPM axis is quantised up to a multiple of this, which keeps both the
-# ceiling and the quarter-way gridline labels round whatever the peak is.
+# The scaled axes are quantised up to a multiple of these, which keeps both
+# the ceiling and the quarter-way gridline labels round whatever the peak is.
 RPM_STEP = 1000
+WATT_STEP = 20
 
 
 def _rgba(hex_colour, alpha=1.0):
@@ -166,13 +187,19 @@ class _ChartBase(Gtk.Widget):
 
 
 class SensorGraph(_ChartBase):
-    """Sixty seconds of CPU and GPU temperature and fan speed.
+    """Sixty seconds of the CPU and the GPU, two quantities at a time.
 
-    Temperature is a line on the left 0–100 °C axis: both series measure the
-    same quantity in the same unit, so they share it. Fan speed is a
-    different quantity on a different scale, so it gets the right-hand RPM
-    axis and a different form — a filled area, held back far enough that the
-    temperature lines stay the foreground of the chart.
+    Three things are measured — temperature, power and fan speed — and only
+    two can share a plot without one of the scales becoming a lie, so two are
+    drawn and the user says which. The left axis carries one as a line, the
+    right axis the other as a filled area. Which quantity sits where is a
+    setting; how they are drawn is not, because the pairing of line against
+    fill is what lets two scales share one plot and still be told apart at a
+    glance.
+
+    Colour identifies the chip and nothing else: blue is the CPU on either
+    axis, orange the GPU. So a series is placed by its colour and read by its
+    form, and neither has to do both jobs.
     """
 
     def __init__(self, monitor, config):
@@ -183,16 +210,79 @@ class SensorGraph(_ChartBase):
         self.set_size_request(-1, chart_height(168, 26 + 18))
         self.set_hexpand(True)
 
-    def _fan_ceiling(self):
-        """The RPM axis top: the stored peak, rounded up to a round number.
+    ###########################################################################
+    # What each metric is, and how far its axis goes
+    ###########################################################################
 
-        Scaling from the peak the fans have ever reached rather than from the
-        peak in the visible sixty seconds is what keeps the axis still. The
-        stored value only ever grows, so the axis cannot rescale downwards
-        under a plot the user is in the middle of reading.
+    def _histories(self, metric):
+        monitor = self.monitor
+        return {
+            cfg.METRIC_TEMP: (monitor.cpu_history, monitor.gpu_history),
+            cfg.METRIC_WATTS: (monitor.cpu_watt_history, monitor.gpu_watt_history),
+            cfg.METRIC_FAN: (monitor.cpu_rpm_history, monitor.gpu_rpm_history),
+        }[metric]
+
+    def _ceiling(self, metric):
+        """The top of a metric\'s axis, always a round number.
+
+        Temperature has a fixed range because 100 °C means something. The
+        other two are scaled from the highest value ever recorded, not the
+        highest in the visible minute: the stored peak only grows, so an axis
+        cannot rescale downwards under a plot being read. Both are quantised
+        upwards so the quarter-way gridlines stay round whatever the peak is.
         """
-        peak = max(self.config.cpu_rpm_peak, self.config.gpu_rpm_peak)
-        return max(RPM_STEP, -(-peak // RPM_STEP) * RPM_STEP)
+        config = self.config
+        if metric == cfg.METRIC_TEMP:
+            return TEMP_MAX
+        if metric == cfg.METRIC_FAN:
+            peak = max(config.cpu_rpm_peak, config.gpu_rpm_peak)
+            step = RPM_STEP
+        else:
+            peak = max(config.cpu_watt_peak, config.gpu_watt_peak)
+            step = WATT_STEP
+        return float(max(step, -(-int(peak) // step) * step))
+
+    def _tick(self, metric, value):
+        """A gridline label: whole numbers, since the axis tops are round."""
+        if metric == cfg.METRIC_WATTS:
+            return f"{value:g}"
+        return f"{int(value)}"
+
+    def _head(self, metric, value):
+        """The direct label at the head of a line, which carries its unit."""
+        if metric == cfg.METRIC_TEMP:
+            return f"{int(value)}°"
+        if metric == cfg.METRIC_WATTS:
+            return f"{value:.0f} W" if value >= 10 else f"{value:.1f} W"
+        return f"{int(value)}"
+
+    ###########################################################################
+    # Drawing
+    ###########################################################################
+
+    def _points(self, history, ceiling, plot, invert):
+        """Runs of consecutive readings, as plot coordinates.
+
+        A history can have holes in it: a GPU that powers down reports
+        nothing, and nothing is not the same as a low reading. Each unbroken
+        run becomes its own list, so a gap stays a gap instead of a segment
+        joining the value before the chip slept to the one after it woke.
+        """
+        left, top, plot_width, plot_height, capacity = plot
+        runs, run = [], []
+        for index, value in enumerate(history):
+            if value is None:
+                if run:
+                    runs.append(run)
+                    run = []
+                continue
+            fraction = min(value / ceiling, 1.0) if ceiling else 0.0
+            x = left + plot_width * (index / max(1, capacity - 1))
+            y = top + plot_height * (1 - fraction) if invert else fraction
+            run.append((x, y))
+        if run:
+            runs.append(run)
+        return runs
 
     def do_snapshot(self, snapshot):
         width = self.get_width()
@@ -204,25 +294,39 @@ class SensorGraph(_ChartBase):
         ink_primary = ink("primary")
         dark = _is_dark()
 
-        # The right margin carries two things side by side: the temperature
-        # value at the end of each line, then the RPM axis beyond it.
+        left_metric = self.config.graph_left
+        right_metric = self.config.graph_right
+        left_ceiling = self._ceiling(left_metric)
+        right_ceiling = self._ceiling(right_metric)
+
+        # The right margin carries two things side by side: the value at the
+        # head of each line, then the right-hand axis beyond it.
         left, right, top, bottom = 36, 78, 26, 18
         plot_width = max(1, width - left - right)
         plot_height = max(1, height - top - bottom)
         baseline = top + plot_height
-        fan_ceiling = self._fan_ceiling()
+        capacity = self.monitor.cpu_history.maxlen or 1
+        plot = (left, top, plot_width, plot_height, capacity)
 
         # Grid: hairline, recessive, labelled in muted ink. One set of rules
         # for both axes, so neither scale implies gridlines the other lacks.
         for step in GRID_STEPS:
-            y = top + plot_height * (1 - step / TEMP_MAX)
+            y = top + plot_height * (1 - step / 100)
             _hline(snapshot, left, left + plot_width, y, ink("grid"))
-            self._text(snapshot, left - 8, y, f"{step}", ink_secondary, 8, "right")
+            self._text(
+                snapshot,
+                left - 8,
+                y,
+                self._tick(left_metric, left_ceiling * step / 100),
+                ink_secondary,
+                8,
+                "right",
+            )
             self._text(
                 snapshot,
                 width - 4,
                 y,
-                f"{int(fan_ceiling * step / 100)}",
+                self._tick(right_metric, right_ceiling * step / 100),
                 ink_secondary,
                 8,
                 "right",
@@ -230,33 +334,46 @@ class SensorGraph(_ChartBase):
 
         # Which number belongs to which axis, said once at the foot of each.
         unit_y = baseline + 11
-        self._text(snapshot, left - 8, unit_y, "°C", ink_secondary, 8, "right")
-        self._text(snapshot, width - 4, unit_y, "RPM", ink_secondary, 8, "right")
-
-        series = (
-            ("cpu", "CPU", self.monitor.cpu_history),
-            ("gpu", "GPU", self.monitor.gpu_history),
+        self._text(
+            snapshot,
+            left - 8,
+            unit_y,
+            METRIC_UNITS[left_metric],
+            ink_secondary,
+            8,
+            "right",
+        )
+        self._text(
+            snapshot,
+            width - 4,
+            unit_y,
+            METRIC_UNITS[right_metric],
+            ink_secondary,
+            8,
+            "right",
         )
 
-        # Legend: always present for two series, so identity is never colour alone.
+        # Legend: always present for two series, so identity is never colour
+        # alone. On the left, which colour is which chip; on the right, what
+        # the filled areas are, since they repeat the same two colours rather
+        # than introducing any of their own.
         legend_x = left
-        for key, label, _history in series:
+        for key, label in (("cpu", "CPU"), ("gpu", "GPU")):
             _dot(snapshot, legend_x + 4, top - 14, 4, series_colour(key))
             text_width, _ = self._text(
                 snapshot, legend_x + 14, top - 14, label, ink_secondary, 8
             )
             legend_x += 14 + text_width + 18
 
-        # ... and one more entry for the form, since the areas repeat the
-        # series colours rather than introducing any of their own.
-        fan_width, _ = self._text(
-            snapshot, width - 4, top - 14, "fan", ink_secondary, 8, "right"
+        area_name = METRIC_SHORT[right_metric]
+        name_width, _ = self._text(
+            snapshot, width - 4, top - 14, area_name, ink_secondary, 8, "right"
         )
-        fan_x = width - 4 - fan_width
+        swatch_x = width - 4 - name_width - 4
         for index, key in enumerate(("cpu", "gpu")):
             _rect(
                 snapshot,
-                fan_x - 22 + index * 9,
+                swatch_x - 18 + index * 9,
                 top - 18,
                 9,
                 9,
@@ -264,71 +381,41 @@ class SensorGraph(_ChartBase):
                 SWATCH_ALPHA,
             )
 
-        capacity = self.monitor.cpu_history.maxlen or 1
-
         # Areas first: the lines cross them and have to stay legible.
-        for key, history in (
-            ("cpu", self.monitor.cpu_rpm_history),
-            ("gpu", self.monitor.gpu_rpm_history),
-        ):
+        for key, history in zip(("cpu", "gpu"), self._histories(right_metric)):
             if not history:
                 continue
-            points = [
-                (
-                    left + plot_width * (index / max(1, capacity - 1)),
-                    baseline - plot_height * min(value / fan_ceiling, 1.0),
+            for run in self._points(history, right_ceiling, plot, invert=False):
+                _area(
+                    snapshot,
+                    [(x, baseline - plot_height * f) for x, f in run],
+                    baseline,
+                    series_colour(key),
+                    FILL_ALPHA[dark],
+                    EDGE_ALPHA[dark],
                 )
-                for index, value in enumerate(history)
-            ]
-            _area(
-                snapshot,
-                points,
-                baseline,
-                series_colour(key),
-                FILL_ALPHA[dark],
-                EDGE_ALPHA[dark],
-            )
 
         endpoints = []
-        for key, _label, history in series:
+        for key, history in zip(("cpu", "gpu"), self._histories(left_metric)):
             if not history:
                 continue
             colour = series_colour(key)
-            # A history can have holes in it: a discrete GPU that powers down
-            # reports no temperature at all, and that is not the same as
-            # reporting a low one. Each unbroken run is drawn as its own line
-            # so the gap stays a gap, rather than a segment joining the
-            # temperature before the GPU slept to the one after it woke.
-            runs = []
-            run = []
-            for index, value in enumerate(history):
-                if value is None:
-                    if run:
-                        runs.append(run)
-                        run = []
-                    continue
-                run.append(
-                    (
-                        left + plot_width * (index / max(1, capacity - 1)),
-                        top + plot_height * (1 - min(value, TEMP_MAX) / TEMP_MAX),
-                    )
-                )
-            if run:
-                runs.append(run)
-
+            runs = self._points(history, left_ceiling, plot, invert=True)
             for run in runs:
                 _polyline(snapshot, run, colour, 2.0)
 
             # The head of the line is only a current reading if the series is
-            # still reporting; a run that ended when the GPU slept gets no
+            # still reporting; a run that ended when the chip slept gets no
             # marker and no direct label.
             if runs and history[-1] is not None:
                 head = runs[-1][-1]
                 _dot(snapshot, head[0], head[1], 4, colour)
-                endpoints.append([head[0], head[1], int(history[-1])])
+                endpoints.append(
+                    [head[0], head[1], self._head(left_metric, history[-1])]
+                )
 
         # Direct labels: a colour-carrying dot on the line, the number in plain
-        # ink beside it. When the two series finish at similar temperatures the
+        # ink beside it. When the two series finish at similar values the
         # labels would otherwise sit on top of each other, so nudge them apart.
         endpoints.sort(key=lambda item: item[1])
         minimum_gap = 14
@@ -336,9 +423,9 @@ class SensorGraph(_ChartBase):
             middle = (endpoints[0][1] + endpoints[1][1]) / 2
             endpoints[0][1] = middle - minimum_gap / 2
             endpoints[1][1] = middle + minimum_gap / 2
-        for x, y, value in endpoints:
+        for x, y, text in endpoints:
             y = min(max(y, 8), height - 8)
-            self._text(snapshot, x + 9, y, f"{value}°", ink_primary, 9)
+            self._text(snapshot, x + 9, y, text, ink_primary, 9)
 
 
 class CurvePreview(_ChartBase):

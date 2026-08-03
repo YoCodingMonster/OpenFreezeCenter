@@ -12,8 +12,9 @@ from . import style
 from .curve_editor import CurveEditorPage
 from .ec import ECError
 from .monitor import Monitor
+from .power import PowerMeters
 from .section import Section
-from .widgets import LegendSwatch, SensorGraph
+from .widgets import METRIC_NAMES, LegendSwatch, SensorGraph
 
 BATTERY_CHOICES = [str(value) for value in range(cfg.BATTERY_MIN, cfg.BATTERY_MAX + 1, 5)]
 
@@ -24,9 +25,19 @@ class ReadingsTable(Gtk.Grid):
     The chart carries the shape of the last minute; this carries the exact
     current value, and the running minimum and maximum, which a sixty-second
     window cannot show.
+
+    It also carries every quantity, not just the two the chart is plotting.
+    The chart can only show two at once without one of the scales becoming a
+    lie; a column of numbers has no such limit, so nothing is ever hidden by
+    the choice of axes — only drawn or not drawn.
+
+    The unit lives in the column heading, not in each cell: five columns have
+    to fit a 360px window, and "20.7" repeated is legible where "20.7 W" is
+    not.
     """
 
-    COLUMNS = ("Now", "Min", "Max", "Fan")
+    COLUMNS = ("Now", "Min", "Max", "Watts", "Fan")
+    FIELDS = ("now", "min", "max", "watts", "rpm")
 
     def __init__(self):
         super().__init__(column_spacing=style.px(6), row_spacing=style.px(6))
@@ -47,25 +58,49 @@ class ReadingsTable(Gtk.Grid):
             heading.append(title)
             self.attach(heading, 0, row, 1, 1)
 
-            for column, field in enumerate(("now", "min", "max", "rpm")):
+            for column, field in enumerate(self.FIELDS):
                 value = Gtk.Label(label="—", xalign=0.5)
                 value.add_css_class("ofc-reading")
                 value.set_hexpand(True)
                 self.attach(value, column + 1, row, 1, 1)
                 self.cells[(key, field)] = value
 
+    @staticmethod
+    def watts(value):
+        """Watts in four characters, which is all the column has room for."""
+        if value is None:
+            return "off"
+        return f"{value:.0f}" if value >= 10 else f"{value:.1f}"
+
     def update(self, monitor, reading):
         pairs = (
-            ("cpu", reading.cpu_temp, monitor.cpu_min, monitor.cpu_max, reading.cpu_rpm),
-            ("gpu", reading.gpu_temp, monitor.gpu_min, monitor.gpu_max, reading.gpu_rpm),
+            (
+                "cpu",
+                reading.cpu_temp,
+                monitor.cpu_min,
+                monitor.cpu_max,
+                reading.cpu_watts,
+                reading.cpu_rpm,
+            ),
+            (
+                "gpu",
+                reading.gpu_temp,
+                monitor.gpu_min,
+                monitor.gpu_max,
+                reading.gpu_watts,
+                reading.gpu_rpm,
+            ),
         )
-        for key, now, low, high, rpm in pairs:
-            # "off" rather than 0 °C: a discrete GPU that is powered down has
-            # no temperature, and the same word already stands for a fan that
-            # is not turning.
-            self.cells[(key, "now")].set_label(f"{now}°C" if now is not None else "off")
+        for key, now, low, high, watts, rpm in pairs:
+            # "off" rather than 0: a chip that is powered down has neither a
+            # temperature nor a wattage, and the same word already stands for
+            # a fan that is not turning.
+            self.cells[(key, "now")].set_label(
+                f"{now}°C" if now is not None else "off"
+            )
             self.cells[(key, "min")].set_label(f"{low}°C" if low < 999 else "—")
             self.cells[(key, "max")].set_label(f"{high}°C" if high else "—")
+            self.cells[(key, "watts")].set_label(self.watts(watts))
             self.cells[(key, "rpm")].set_label(f"{rpm}" if rpm else "off")
 
 
@@ -335,7 +370,7 @@ class FirstRunWindow(Adw.Window):
 
 
 class MainWindow(Adw.ApplicationWindow):
-    def __init__(self, application, controller):
+    def __init__(self, application, controller, meters=None):
         super().__init__(
             application=application,
             title="Open Freeze Center",
@@ -346,6 +381,10 @@ class MainWindow(Adw.ApplicationWindow):
         )
         self.add_css_class("ofc-compact")
         self.controller = controller
+        # Watts do not come from the EC, so they do not come from the
+        # controller either; a simulated run wants simulated power for the
+        # same reason it wants a simulated EC.
+        self.meters = meters if meters is not None else PowerMeters.detect()
         self.config = None
         self.monitor = None
         self.graph = None
@@ -355,6 +394,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._loading = False
         self._fit_queued = False
         self._rpm_peak_saved = 0
+        self._watt_peak_saved = 0.0
 
         self.toasts = Adw.ToastOverlay()
         self.navigation = Adw.NavigationView()
@@ -453,6 +493,28 @@ class MainWindow(Adw.ApplicationWindow):
         reset.add_css_class("flat")
         reset.connect("clicked", self._on_reset_extremes)
         monitoring.set_header_suffix(reset)
+
+        # Which two of the three measurements the chart plots. The forms are
+        # not a choice: a line reads against the left axis and an area against
+        # the right, and that pairing is what lets two scales share one plot.
+        metrics = Gtk.StringList.new([METRIC_NAMES[name] for name in cfg.METRIC_ORDER])
+        self.left_axis_row = Adw.ComboRow(
+            title="Left axis",
+            subtitle="Drawn as a line",
+            model=metrics,
+        )
+        self.left_axis_row.connect("notify::selected", self._on_axis_changed, "left")
+        monitoring.add(self.left_axis_row)
+
+        self.right_axis_row = Adw.ComboRow(
+            title="Right axis",
+            subtitle="Drawn as a filled area",
+            model=Gtk.StringList.new(
+                [METRIC_NAMES[name] for name in cfg.METRIC_ORDER]
+            ),
+        )
+        self.right_axis_row.connect("notify::selected", self._on_axis_changed, "right")
+        monitoring.add(self.right_axis_row)
 
         chart_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=style.px(14))
         chart_box.add_css_class("card")
@@ -561,7 +623,7 @@ class MainWindow(Adw.ApplicationWindow):
             self._show_error(error)
             return
 
-        self.monitor = Monitor(self.controller, config)
+        self.monitor = Monitor(self.controller, config, meters=self.meters)
         self.monitor.connect("reading", self._on_reading)
         self.monitor.connect("failed", lambda _m, error: self._show_error(error))
         self.graph = SensorGraph(self.monitor, config)
@@ -628,6 +690,8 @@ class MainWindow(Adw.ApplicationWindow):
         self.offset_row.set_visible(config.profile == cfg.PROFILE_BASIC)
         self.curve_row.set_visible(config.profile == cfg.PROFILE_ADVANCED)
         self.booster_row.set_active(config.cooler_booster)
+        self.left_axis_row.set_selected(cfg.METRIC_ORDER.index(config.graph_left))
+        self.right_axis_row.set_selected(cfg.METRIC_ORDER.index(config.graph_right))
         try:
             self.battery_row.set_selected(
                 BATTERY_CHOICES.index(str(config.battery_threshold))
@@ -678,9 +742,20 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
         if reading is not None:
-            gpu = f"{reading.gpu_temp}°" if reading.gpu_temp is not None else "off"
+            # One line, so each chip gets its temperature and its watts and
+            # the fans share the tail. A chip that is powered down says so
+            # once rather than twice.
+            def chip(temp, watts):
+                if temp is None and watts is None:
+                    return "off"
+                degrees = f"{temp}°" if temp is not None else "off"
+                if watts is None:
+                    return degrees
+                return f"{degrees} {ReadingsTable.watts(watts)}W"
+
             self.monitoring_section.set_summary(
-                f"CPU {reading.cpu_temp}° · GPU {gpu} · "
+                f"CPU {chip(reading.cpu_temp, reading.cpu_watts)} · "
+                f"GPU {chip(reading.gpu_temp, reading.gpu_watts)} · "
                 f"{reading.cpu_rpm}/{reading.gpu_rpm} RPM"
             )
         elif self.monitor is None or self.monitor.latest is None:
@@ -746,6 +821,33 @@ class MainWindow(Adw.ApplicationWindow):
             Adw.Toast.new(f"Charging stops at {self.config.battery_threshold}%")
         )
 
+    def _on_axis_changed(self, row, _param, side):
+        """Move a metric onto an axis, pushing whatever was there aside.
+
+        The two axes cannot show the same quantity — one of the scales would
+        be a duplicate of the other and the area would sit exactly under the
+        line. Rather than refuse the choice, the metric already on the other
+        axis takes the place being vacated, so picking one thing always
+        leaves a valid pair and never a rejected click.
+        """
+        if self._loading or self.config is None:
+            return
+        config = self.config
+        chosen = cfg.METRIC_ORDER[row.get_selected()]
+        other = config.graph_right if side == "left" else config.graph_left
+        previous = config.graph_left if side == "left" else config.graph_right
+        if chosen == other:
+            other = previous
+        if side == "left":
+            config.graph_left, config.graph_right = chosen, other
+        else:
+            config.graph_right, config.graph_left = chosen, other
+
+        self._sync_widgets()
+        cfg.save(config)
+        if self.graph is not None:
+            self.graph.queue_draw()
+
     def _on_open_curves(self, _row):
         if self.config is None:
             return
@@ -770,6 +872,9 @@ class MainWindow(Adw.ApplicationWindow):
     def note_rpm_peaks_saved(self):
         """Mark the stored peaks as being what is on disk."""
         self._rpm_peak_saved = max(self.config.cpu_rpm_peak, self.config.gpu_rpm_peak)
+        self._watt_peak_saved = max(
+            self.config.cpu_watt_peak, self.config.gpu_watt_peak
+        )
 
     def _record_rpm_peaks(self, reading):
         """Raise the stored peaks to match anything faster we just saw.
@@ -792,10 +897,34 @@ class MainWindow(Adw.ApplicationWindow):
             cfg.save(config)
             self._rpm_peak_saved = peak
 
+    def _record_watt_peaks(self, reading):
+        """The same for the power axis, which has no published ceiling.
+
+        The CPU's RAPL package limit reads 200 W on this class of machine,
+        which no laptop draws, and the GPU's varies with whatever power
+        profile the firmware is in. What has actually been measured is the
+        only honest scale, so the axis is grown from that.
+        """
+        config = self.config
+        for attribute, watts in (
+            ("cpu_watt_peak", reading.cpu_watts),
+            ("gpu_watt_peak", reading.gpu_watts),
+        ):
+            if watts is None:
+                continue
+            current = getattr(config, attribute)
+            setattr(config, attribute, min(max(current, watts), cfg.WATT_PEAK_MAX))
+
+        peak = max(config.cpu_watt_peak, config.gpu_watt_peak)
+        if peak >= self._watt_peak_saved + 5:
+            cfg.save(config)
+            self._watt_peak_saved = peak
+
     def _on_reading(self, monitor, reading):
         self.readings.update(monitor, reading)
         self._update_summaries(reading)
         self._record_rpm_peaks(reading)
+        self._record_watt_peaks(reading)
         self.graph.queue_draw()
 
 

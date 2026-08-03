@@ -14,6 +14,7 @@ from gi.repository import Adw, Gio, Gtk, Gdk
 
 from . import config as cfg
 from .ec import EmbeddedController, SimulatedController
+from .power import PowerMeters
 from .style import STYLE
 from .window import MainWindow
 
@@ -105,9 +106,10 @@ def open_externally(target):
 
 
 class OFCApplication(Adw.Application):
-    def __init__(self, controller):
+    def __init__(self, controller, meters=None):
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.controller = controller
+        self.meters = meters
         self.window = None
 
     def do_startup(self):
@@ -137,7 +139,7 @@ class OFCApplication(Adw.Application):
 
     def do_activate(self):
         if self.window is None:
-            self.window = MainWindow(self, self.controller)
+            self.window = MainWindow(self, self.controller, self.meters)
         self.window.present()
 
     def _on_quit(self, *_args):
@@ -252,7 +254,9 @@ def main(argv=None):
 
     if args.simulate:
         controller = SimulatedController()
+        meters = PowerMeters.simulated()
     else:
+        meters = None
         controller = EmbeddedController()
         if os.geteuid() != 0:
             sys.stderr.write(
@@ -261,4 +265,4 @@ def main(argv=None):
             )
 
     Adw.init()
-    return OFCApplication(controller).run([])
+    return OFCApplication(controller, meters).run([])
