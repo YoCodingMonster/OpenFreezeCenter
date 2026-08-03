@@ -19,7 +19,7 @@ from .style import STYLE
 from .window import MainWindow
 
 APP_ID = "io.github.yocodingmonster.OpenFreezeCenter"
-VERSION = "6.0"
+VERSION = "7.0"
 
 WEBSITE = "https://github.com/YoCodingMonster/OpenFreezeCenter"
 ISSUE_URL = "https://github.com/YoCodingMonster/OpenFreezeCenter/issues"
