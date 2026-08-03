@@ -4,7 +4,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Adw, Gtk, GLib
+from gi.repository import Adw, Gtk, GLib, Pango
 
 from . import config as cfg
 from . import profiles
@@ -497,24 +497,18 @@ class MainWindow(Adw.ApplicationWindow):
         # Which two of the three measurements the chart plots. The forms are
         # not a choice: a line reads against the left axis and an area against
         # the right, and that pairing is what lets two scales share one plot.
-        metrics = Gtk.StringList.new([METRIC_NAMES[name] for name in cfg.METRIC_ORDER])
-        self.left_axis_row = Adw.ComboRow(
-            title="Left axis",
-            subtitle="Drawn as a line",
-            model=metrics,
-        )
-        self.left_axis_row.connect("notify::selected", self._on_axis_changed, "left")
-        monitoring.add(self.left_axis_row)
-
-        self.right_axis_row = Adw.ComboRow(
-            title="Right axis",
-            subtitle="Drawn as a filled area",
-            model=Gtk.StringList.new(
-                [METRIC_NAMES[name] for name in cfg.METRIC_ORDER]
-            ),
-        )
-        self.right_axis_row.connect("notify::selected", self._on_axis_changed, "right")
-        monitoring.add(self.right_axis_row)
+        #
+        # Side by side, one half of the width each, because the two are read
+        # as a pair — left against right, exactly as they appear on the chart
+        # — and stacked they read as two unrelated settings. A settings row
+        # cannot be halved this far and keep a title, a subtitle and a value
+        # legible, so each half is the caption over the control instead, which
+        # is what the width can carry.
+        axes = Gtk.Box(spacing=style.px(12), homogeneous=True)
+        axes.set_margin_bottom(style.px(10))
+        self.left_axis = self._axis_chooser(axes, "Left axis · line", "left")
+        self.right_axis = self._axis_chooser(axes, "Right axis · area", "right")
+        monitoring.add(axes)
 
         chart_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=style.px(14))
         chart_box.add_css_class("card")
@@ -556,6 +550,31 @@ class MainWindow(Adw.ApplicationWindow):
             vexpand=True,
             child=clamp,
         )
+
+    def _axis_chooser(self, box, caption, side):
+        """One half of the axis pair: a caption over its dropdown."""
+        label = Gtk.Label(label=caption, xalign=0.0)
+        label.add_css_class("dim-label")
+        label.add_css_class("caption")
+        label.set_ellipsize(Pango.EllipsizeMode.END)
+
+        chooser = Gtk.DropDown(
+            model=Gtk.StringList.new(
+                [METRIC_NAMES[name] for name in cfg.METRIC_ORDER]
+            ),
+        )
+        chooser.set_tooltip_text(caption)
+        # The caption is the control's name as far as anything reading the
+        # window aloud is concerned; without this the dropdown announces only
+        # whichever metric it happens to be showing.
+        chooser.update_property([Gtk.AccessibleProperty.LABEL], [caption])
+        chooser.connect("notify::selected", self._on_axis_changed, side)
+
+        half = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=style.px(4))
+        half.append(label)
+        half.append(chooser)
+        box.append(half)
+        return chooser
 
     def _queue_fit(self, *_args):
         """Retake the window's height once the layout has settled.
@@ -690,8 +709,8 @@ class MainWindow(Adw.ApplicationWindow):
         self.offset_row.set_visible(config.profile == cfg.PROFILE_BASIC)
         self.curve_row.set_visible(config.profile == cfg.PROFILE_ADVANCED)
         self.booster_row.set_active(config.cooler_booster)
-        self.left_axis_row.set_selected(cfg.METRIC_ORDER.index(config.graph_left))
-        self.right_axis_row.set_selected(cfg.METRIC_ORDER.index(config.graph_right))
+        self.left_axis.set_selected(cfg.METRIC_ORDER.index(config.graph_left))
+        self.right_axis.set_selected(cfg.METRIC_ORDER.index(config.graph_right))
         try:
             self.battery_row.set_selected(
                 BATTERY_CHOICES.index(str(config.battery_threshold))
@@ -742,21 +761,24 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
         if reading is not None:
-            # One line, so each chip gets its temperature and its watts and
-            # the fans share the tail. A chip that is powered down says so
-            # once rather than twice.
-            def chip(temp, watts):
-                if temp is None and watts is None:
-                    return "off"
-                degrees = f"{temp}°" if temp is not None else "off"
-                if watts is None:
-                    return degrees
-                return f"{degrees} {ReadingsTable.watts(watts)}W"
+            # Each chip keeps its own three numbers together rather than the
+            # two of them sharing a tail of fan speeds, which reads better and
+            # is also the only arrangement that fits: with a unit on the fans
+            # as well, the line runs past the width of the header and gets
+            # ellipsised mid-number. A chip that is powered down says so once.
+            def chip(temp, watts, rpm):
+                parts = []
+                if temp is not None:
+                    parts.append(f"{temp}°")
+                if watts is not None:
+                    parts.append(f"{ReadingsTable.watts(watts)}W")
+                if rpm:
+                    parts.append(str(rpm))
+                return " ".join(parts) if parts else "off"
 
             self.monitoring_section.set_summary(
-                f"CPU {chip(reading.cpu_temp, reading.cpu_watts)} · "
-                f"GPU {chip(reading.gpu_temp, reading.gpu_watts)} · "
-                f"{reading.cpu_rpm}/{reading.gpu_rpm} RPM"
+                f"CPU {chip(reading.cpu_temp, reading.cpu_watts, reading.cpu_rpm)} · "
+                f"GPU {chip(reading.gpu_temp, reading.gpu_watts, reading.gpu_rpm)}"
             )
         elif self.monitor is None or self.monitor.latest is None:
             self.monitoring_section.set_summary("Waiting for the first reading…")

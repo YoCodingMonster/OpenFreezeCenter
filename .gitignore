@@ -1,4 +1,35 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# The pre-6.0 settings file, which lived in the source tree and was rewritten
+# as source code at run time. It is migrated on first start and left behind
+# with a .migrated suffix; neither belongs in the repository.
 /config.py
 /config.py.migrated
+
+# Editors and tooling
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Desktops leave these in checkouts
+.DS_Store
+Thumbs.db
+*.orig
+*.rej
+
+# Local scratch, for anything deliberately not shared.
+/scratch/
